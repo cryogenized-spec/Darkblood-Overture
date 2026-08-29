@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, SCREEN_CONTENT } from '../config/gameConfig.js';
+import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
 import { createTitlePrompt, hideTitlePrompt } from '../ui/titlePrompt.js';
+
+const TITLE_ART_KEY = 'title-screen-art';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -8,26 +10,20 @@ export class TitleScene extends Phaser.Scene {
     this.acceptingInput = false;
   }
 
+  preload() {
+    this.load.image(TITLE_ART_KEY, 'assets/ui/title-screen/darkblood-overture-title.png');
+  }
+
   create() {
     this.cameras.main.setBackgroundColor('#08070b');
 
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH - 12, GAME_HEIGHT - 12)
-      .setStrokeStyle(1, 0x6c5b77, 0.55);
+    const image = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, TITLE_ART_KEY)
+      .setOrigin(0.5)
+      .setDepth(1);
 
-    this.add.text(GAME_WIDTH / 2, 57, 'DARKBLOOD:', {
-      color: '#f4f0e7', fontFamily: 'Georgia, serif', fontSize: '26px', fontStyle: 'bold', letterSpacing: 3,
-    }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, 84, 'OVERTURE', {
-      color: '#d7c6df', fontFamily: 'Georgia, serif', fontSize: '14px', letterSpacing: 7,
-    }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, 105, SCREEN_CONTENT.title.japanese, {
-      color: '#a991b6', fontFamily: 'sans-serif', fontSize: '7px', letterSpacing: 2,
-    }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, 126, '[ TITLE ART PLACEHOLDER ]', {
-      color: '#514957', fontFamily: 'monospace', fontSize: '5px', letterSpacing: 1,
-    }).setOrigin(0.5);
+    this.fitImageToViewport(image);
 
-    createTitlePrompt(SCREEN_CONTENT.title.prompt);
+    createTitlePrompt();
     this.input.keyboard?.on('keydown', this.handleInput, this);
     this.input.on('pointerdown', this.handleInput, this);
     this.acceptingInput = true;
@@ -37,6 +33,14 @@ export class TitleScene extends Phaser.Scene {
       this.input.keyboard?.off('keydown', this.handleInput, this);
       this.input.off('pointerdown', this.handleInput, this);
     });
+  }
+
+  fitImageToViewport(image) {
+    const texture = image.texture.getSourceImage();
+    if (!texture?.width || !texture?.height) return;
+
+    const scale = Math.max(GAME_WIDTH / texture.width, GAME_HEIGHT / texture.height);
+    image.setScale(scale);
   }
 
   handleInput() {
