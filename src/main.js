@@ -5,6 +5,7 @@ import { DevSplashScene } from './scenes/DevSplashScene.js';
 import { TitleScene } from './scenes/TitleScene.js';
 import { MainMenuScene } from './scenes/MainMenuScene.js';
 import { GameScene } from './scenes/GameScene.js';
+import { AwakeningScene } from './scenes/AwakeningScene.js';
 import { GAME_WIDTH, GAME_HEIGHT } from './config/gameConfig.js';
 
 const config = {
@@ -21,7 +22,7 @@ const config = {
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
   },
-  scene: [BootScene, DevSplashScene, TitleScene, MainMenuScene, GameScene],
+  scene: [BootScene, DevSplashScene, TitleScene, MainMenuScene, GameScene, AwakeningScene],
   input: {
     activePointers: 3,
   },
