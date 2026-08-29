@@ -24,4 +24,14 @@ export default [
       'no-constant-condition': 'error',
     },
   },
+  {
+    files: ['public/sw.js'],
+    languageOptions: {
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        fetch: 'readonly',
+      },
+    },
+  },
 ];
