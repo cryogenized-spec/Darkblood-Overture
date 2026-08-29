@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
 
 export class PauseMenu {
