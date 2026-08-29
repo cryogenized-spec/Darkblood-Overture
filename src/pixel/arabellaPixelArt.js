@@ -19,6 +19,10 @@ export const ARABELLA_FRAME = Object.freeze({
 
 export const ARABELLA_PIXEL = Object.freeze({ width: 128, height: 160, frameCount: 13 });
 
+export const ARABELLA_TEXTURE_KEYS = Object.freeze(
+  Object.fromEntries(Object.entries(ARABELLA_FRAME).map(([name, index]) => [name, `arabella-pixel-${name}`])),
+);
+
 function setPixel(data, width, x, y, color) {
   if (x < 0 || y < 0 || x >= width || y >= data.length / width / 4) return;
   const index = (y * width + x) * 4;
@@ -206,24 +210,23 @@ function createFrame(index) {
   return data;
 }
 
-export function buildArabellaTexture(scene, key = 'arabella-pixel-awakening') {
+function buildFrameTexture(scene, name) {
+  const key = ARABELLA_TEXTURE_KEYS[name];
   if (scene.textures.exists(key)) return scene.textures.get(key);
 
-  const { width, height, frameCount } = ARABELLA_PIXEL;
-  const canvasTexture = scene.textures.createCanvas(key, width * frameCount, height);
-  const context = canvasTexture.context;
+  const { width, height } = ARABELLA_PIXEL;
+  const texture = scene.textures.createCanvas(key, width, height);
+  const context = texture.getContext();
   context.imageSmoothingEnabled = false;
+  const image = context.createImageData(width, height);
+  image.data.set(createFrame(ARABELLA_FRAME[name]));
+  context.putImageData(image, 0, 0);
+  texture.refresh();
+  texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+  return texture;
+}
 
-  for (let frame = 0; frame < frameCount; frame += 1) {
-    const image = context.createImageData(width, height);
-    image.data.set(createFrame(frame));
-    context.putImageData(image, frame * width, 0);
-  }
-
-  canvasTexture.refresh();
-  canvasTexture.setFilter(Phaser.Textures.FilterMode.NEAREST);
-  for (let frame = 0; frame < frameCount; frame += 1) {
-    canvasTexture.add(frame, 0, frame * width, 0, width, height);
-  }
-  return canvasTexture;
+export function buildArabellaTexture(scene) {
+  Object.keys(ARABELLA_FRAME).forEach((name) => buildFrameTexture(scene, name));
+  return scene.textures.get(ARABELLA_TEXTURE_KEYS.dormant);
 }
