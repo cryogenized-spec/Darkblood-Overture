@@ -1,14 +1,17 @@
-const CACHE_NAME = 'darkblood-overture-v2';
+const CACHE_NAME = 'darkblood-overture-v3';
 const BASE_URL = new URL('./', self.location.href);
-const APP_SHELL = [
+const SHELL_URLS = [
   new URL('./', BASE_URL).href,
   new URL('./manifest.webmanifest', BASE_URL).href,
+  new URL('./orientation.css', BASE_URL).href,
+  new URL('./orientation.js', BASE_URL).href,
+  new URL('./service-worker-register.js', BASE_URL).href,
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then((cache) => cache.addAll(SHELL_URLS))
       .then(() => self.skipWaiting()),
   );
 });
@@ -39,7 +42,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           return response;
         })
-        .catch(() => caches.match(event.request).then((cached) => cached || caches.match(APP_SHELL[0]))),
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match(SHELL_URLS[0]))),
     );
     return;
   }
@@ -47,12 +50,11 @@ self.addEventListener('fetch', (event) => {
   if (requestUrl.origin !== self.location.origin) return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
+    caches.match(event.request)
+      .then((cached) => cached || fetch(event.request).then((response) => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         return response;
-      })
-      .catch(() => caches.match(event.request)),
+      })),
   );
 });
