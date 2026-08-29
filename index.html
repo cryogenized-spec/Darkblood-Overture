@@ -18,15 +18,80 @@
     <main id="app" aria-label="Darkblood: Overture">
       <div id="game-shell">
         <div id="game-container"></div>
-        <div id="orientation-warning" aria-live="polite">
-          <div class="orientation-card">
-            <div class="orientation-symbol">⟲</div>
-            <p>Landscape only.</p>
-            <span>Turn your device sideways to enter the game.</span>
+
+        <section id="orientation-gate" class="fixed inset-0 z-[1000] grid place-items-center bg-[#050507] px-6 py-8" aria-live="polite">
+          <div class="orientation-card relative w-full max-w-md overflow-hidden rounded-sm border border-violet-300/25 bg-black/75 px-7 py-8 text-center shadow-[0_0_60px_rgba(124,58,237,0.14)] backdrop-blur-sm">
+            <div class="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(circle_at_center,rgba(109,40,217,0.16),transparent_62%)]"></div>
+            <div class="relative">
+              <div class="mx-auto mb-5 h-16 w-16 rounded-full border border-violet-200/35 bg-violet-950/25 p-2 shadow-[0_0_28px_rgba(168,85,247,0.16)]">
+                <div id="orientation-symbol" class="grid h-full w-full place-items-center text-3xl text-violet-200">⟲</div>
+              </div>
+              <p id="orientation-kicker" class="mb-2 font-serif text-[0.68rem] font-medium uppercase tracking-[0.42em] text-violet-300/70">Darkblood: Overture</p>
+              <h1 id="orientation-title" class="mb-4 font-serif text-2xl uppercase tracking-[0.18em] text-[#f4f0e7]">Landscape only</h1>
+              <p id="orientation-message" class="mx-auto max-w-sm font-serif text-sm leading-6 text-violet-100/70">Turn your device sideways to enter the game.</p>
+              <button id="orientation-continue" type="button" class="mt-7 hidden border border-violet-200/35 bg-violet-950/35 px-6 py-3 font-serif text-xs uppercase tracking-[0.28em] text-[#f4f0e7] shadow-[0_0_22px_rgba(168,85,247,0.12)] transition hover:bg-violet-900/40 focus:outline-none focus:ring-2 focus:ring-violet-300/50 active:scale-[0.98]">
+                Enter the Overture
+              </button>
+              <p id="orientation-hint" class="mt-5 text-[0.63rem] uppercase tracking-[0.22em] text-violet-200/35">The game is locked to landscape.</p>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </main>
+
+    <script>
+      (() => {
+        const gate = document.getElementById('orientation-gate');
+        const title = document.getElementById('orientation-title');
+        const message = document.getElementById('orientation-message');
+        const symbol = document.getElementById('orientation-symbol');
+        const button = document.getElementById('orientation-continue');
+        const hint = document.getElementById('orientation-hint');
+
+        let landscapeReady = false;
+        let acknowledged = false;
+
+        const isLandscape = () => window.matchMedia('(orientation: landscape)').matches;
+
+        const updateOrientationState = () => {
+          landscapeReady = isLandscape();
+
+          if (acknowledged) return;
+
+          if (landscapeReady) {
+            symbol.textContent = '✦';
+            title.textContent = 'Landscape detected';
+            message.textContent = 'The veil is open. Tap below to enter the Overture.';
+            button.classList.remove('hidden');
+            hint.textContent = 'Tap to continue';
+          } else {
+            symbol.textContent = '⟲';
+            title.textContent = 'Landscape only';
+            message.textContent = 'Turn your device sideways to enter the game.';
+            button.classList.add('hidden');
+            hint.textContent = 'The game is locked to landscape.';
+          }
+        };
+
+        const acknowledge = () => {
+          if (!landscapeReady) return;
+          acknowledged = true;
+          button.disabled = true;
+          gate.classList.add('orientation-gate-exit');
+          window.dispatchEvent(new Event('darkblood:orientation-ready'));
+          window.setTimeout(() => gate.remove(), 420);
+        };
+
+        window.addEventListener('orientationchange', updateOrientationState, { passive: true });
+        window.addEventListener('resize', updateOrientationState, { passive: true });
+        button.addEventListener('click', acknowledge);
+        gate.addEventListener('click', (event) => {
+          if (event.target === gate && landscapeReady) acknowledge();
+        });
+        updateOrientationState();
+      })();
+    </script>
+
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
