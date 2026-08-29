@@ -1,0 +1,1 @@
+PREACT1_QUEEN.png is the cinematic awakening sprite sheet for Arabella. Runtime cell size: 96x112 px; sheet layout: 4 columns x 4 rows, 13 frames used.
