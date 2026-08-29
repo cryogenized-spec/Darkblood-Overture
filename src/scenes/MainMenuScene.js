@@ -85,7 +85,7 @@ export class MainMenuScene extends Phaser.Scene {
 
     switch (this.selected) {
       case 0:
-        this.scene.start('GameScene');
+        this.scene.start('AwakeningScene');
         break;
       case 1:
         this.showPlaceholder('LOAD GAME', 'SAVE SYSTEM RESERVED FOR A FUTURE PASS');
