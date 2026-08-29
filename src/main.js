@@ -1,0 +1,35 @@
+import Phaser from 'phaser';
+import './styles.css';
+import { BootScene } from './scenes/BootScene.js';
+import { DevSplashScene } from './scenes/DevSplashScene.js';
+import { TitleScene } from './scenes/TitleScene.js';
+import { GameScene } from './scenes/GameScene.js';
+import { GAME_WIDTH, GAME_HEIGHT } from './config/gameConfig.js';
+
+const config = {
+  type: Phaser.AUTO,
+  parent: 'game-container',
+  width: GAME_WIDTH,
+  height: GAME_HEIGHT,
+  backgroundColor: '#050507',
+  pixelArt: true,
+  roundPixels: true,
+  render: {
+    antialias: false,
+    roundPixels: true,
+    pixelArt: true,
+  },
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+  },
+  scene: [BootScene, DevSplashScene, TitleScene, GameScene],
+  input: {
+    activePointers: 3,
+  },
+};
+
+const game = new Phaser.Game(config);
+window.darkbloodGame = game;
