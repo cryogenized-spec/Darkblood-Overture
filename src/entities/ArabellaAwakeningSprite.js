@@ -3,13 +3,12 @@ import { ARABELLA_FRAME, buildArabellaTexture, ARABELLA_PIXEL } from '../pixel/a
 
 export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
-    buildArabellaTexture(scene);
     super(scene, x, y, 'arabella-pixel-awakening', ARABELLA_FRAME.dormant);
+    buildArabellaTexture(scene);
     scene.add.existing(this);
     this.setOrigin(0.5, 1);
     this.setDepth(20);
     this.setScale(1);
-    this.setPipeline('TextureTint');
     this.baseHeight = ARABELLA_PIXEL.height;
   }
 
