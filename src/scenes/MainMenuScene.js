@@ -6,6 +6,7 @@ export class MainMenuScene extends Phaser.Scene {
     super('MainMenuScene');
     this.options = ['NEW GAME', 'LOAD GAME', 'OPTIONS', 'CREDITS'];
     this.selected = 0;
+    this.placeholderOpen = false;
   }
 
   create() {
@@ -21,14 +22,27 @@ export class MainMenuScene extends Phaser.Scene {
       letterSpacing: 3,
     }).setOrigin(0.5);
 
-    this.menuText = this.options.map((label, index) => this.add.text(GAME_WIDTH / 2, 61 + index * 17, label, {
-      color: index === 0 ? '#f4f0e7' : '#726b76',
-      fontFamily: 'Georgia, serif',
-      fontSize: '7px',
-      letterSpacing: 2,
-    }).setOrigin(0.5));
+    this.menuText = this.options.map((label, index) => {
+      const text = this.add.text(GAME_WIDTH / 2, 61 + index * 17, label, {
+        color: index === 0 ? '#f4f0e7' : '#726b76',
+        fontFamily: 'Georgia, serif',
+        fontSize: '7px',
+        letterSpacing: 2,
+      }).setOrigin(0.5);
+      text.setInteractive({ useHandCursor: true });
+      text.on('pointerover', () => {
+        if (!this.placeholderOpen) {
+          this.selected = index;
+          this.refreshSelection();
+        }
+      });
+      text.on('pointerdown', () => {
+        if (!this.placeholderOpen) this.confirm();
+      });
+      return text;
+    });
 
-    this.helpText = this.add.text(GAME_WIDTH / 2, 151, 'ARROW KEYS / TAP  •  SELECT  •  CONFIRM', {
+    this.add.text(GAME_WIDTH / 2, 151, 'ARROWS / TAP • SELECT • CONFIRM', {
       color: '#4c4650',
       fontFamily: 'monospace',
       fontSize: '4px',
@@ -39,14 +53,6 @@ export class MainMenuScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-DOWN', this.moveDown, this);
     this.input.keyboard?.on('keydown-ENTER', this.confirm, this);
     this.input.keyboard?.on('keydown-SPACE', this.confirm, this);
-    this.input.on('pointerdown', (_pointer, currentlyOver) => {
-      const target = currentlyOver?.find((item) => this.menuText.includes(item));
-      if (target) {
-        this.selected = this.menuText.indexOf(target);
-        this.refreshSelection();
-        this.confirm();
-      }
-    });
 
     this.events.once('shutdown', () => {
       this.input.keyboard?.off('keydown-UP', this.moveUp, this);
@@ -57,11 +63,13 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   moveUp() {
+    if (this.placeholderOpen) return;
     this.selected = (this.selected - 1 + this.options.length) % this.options.length;
     this.refreshSelection();
   }
 
   moveDown() {
+    if (this.placeholderOpen) return;
     this.selected = (this.selected + 1) % this.options.length;
     this.refreshSelection();
   }
@@ -73,6 +81,8 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   confirm() {
+    if (this.placeholderOpen) return;
+
     switch (this.selected) {
       case 0:
         this.scene.start('GameScene');
@@ -90,7 +100,8 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   showPlaceholder(title, body) {
-    const panel = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2);
+    this.placeholderOpen = true;
+    const panel = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2).setDepth(20);
     panel.add(this.add.rectangle(0, 0, 210, 58, 0x08070b, 0.97).setStrokeStyle(1, 0x8e7e98, 0.55));
     panel.add(this.add.text(0, -14, title, {
       color: '#f4f0e7', fontFamily: 'Georgia, serif', fontSize: '7px', letterSpacing: 2,
@@ -105,6 +116,7 @@ export class MainMenuScene extends Phaser.Scene {
 
     const close = () => {
       panel.destroy(true);
+      this.placeholderOpen = false;
       this.input.keyboard?.off('keydown-ENTER', close);
       this.input.keyboard?.off('keydown-SPACE', close);
       this.input.off('pointerdown', close);
