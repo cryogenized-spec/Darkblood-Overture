@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Darkblood: Overture — 2D dark-fantasy browser game.",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
     "lint": "eslint .",
@@ -14,9 +17,9 @@
     "phaser": "4.2.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "4.3.3",
-    "eslint": "^9.0.0",
+    "eslint": "^10.9.1",
     "tailwindcss": "4.3.3",
     "vite": "8.2.2"
   }
