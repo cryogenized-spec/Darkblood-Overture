@@ -1,0 +1,159 @@
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#app,
+#game-shell {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  min-width: 100vw;
+  min-height: 100vh;
+  background: #050507;
+  color: #f4f0e7;
+  font-family: Georgia, 'Times New Roman', serif;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#game-shell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: #050507;
+}
+
+#game-container {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#orientation-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: #050507;
+  padding: 2rem 1.5rem;
+  opacity: 1;
+  visibility: visible;
+}
+
+#orientation-gate.orientation-gate-exit {
+  animation: orientation-gate-fade 420ms ease forwards;
+  pointer-events: none;
+}
+
+.orientation-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(109, 40, 217, 0.16), transparent 62%);
+}
+
+.orientation-card {
+  position: relative;
+  width: min(100%, 28rem);
+  padding: 2rem 1.75rem;
+  text-align: center;
+  overflow: hidden;
+  border: 1px solid rgba(196, 132, 252, 0.25);
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.75);
+  box-shadow: 0 0 60px rgba(124, 58, 237, 0.14);
+}
+
+.orientation-symbol {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.25rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(221, 214, 254, 0.35);
+  border-radius: 9999px;
+  background: rgba(76, 29, 149, 0.25);
+  color: #ddd6fe;
+  font-size: 1.875rem;
+  box-shadow: 0 0 28px rgba(168, 85, 247, 0.16);
+}
+
+.orientation-kicker {
+  margin: 0 0 0.5rem;
+  color: rgba(196, 181, 253, 0.7);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+.orientation-title {
+  margin: 0 0 1rem;
+  color: #f4f0e7;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(196, 132, 252, 0.16);
+}
+
+.orientation-message {
+  margin: 0 auto;
+  max-width: 22rem;
+  color: rgba(237, 233, 254, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.5rem;
+}
+
+#orientation-continue {
+  margin-top: 1.75rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(221, 214, 254, 0.35);
+  background: rgba(76, 29, 149, 0.35);
+  color: #f4f0e7;
+  font: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.12);
+  cursor: pointer;
+}
+
+.orientation-hint {
+  margin: 1.25rem 0 0;
+  color: rgba(221, 214, 254, 0.35);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+@keyframes orientation-gate-fade {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
