@@ -48,15 +48,7 @@ function line(data, width, x0, y0, x1, y1, color, thickness = 1) {
   }
   for (let i = 0; i <= steps; i += 1) {
     const t = i / steps;
-    block(
-      data,
-      width,
-      Math.round(x0 + (x1 - x0) * t),
-      Math.round(y0 + (y1 - y0) * t),
-      thickness,
-      thickness,
-      color,
-    );
+    block(data, width, Math.round(x0 + (x1 - x0) * t), Math.round(y0 + (y1 - y0) * t), thickness, thickness, color);
   }
 }
 
@@ -123,11 +115,10 @@ function drawHead(data, width, cx, cy, eyesOn, headUp) {
 function drawStaff(data, width, cx, yTop, yBottom, angle = -5) {
   const rad = (angle * Math.PI) / 180;
   const x0 = cx + 22;
-  const y0 = yBottom;
   const x1 = x0 + Math.round(Math.sin(rad) * (yBottom - yTop));
   const y1 = yTop;
-  line(data, width, x0, y0, x1, y1, P.staff, 3);
-  line(data, width, x0 - 1, y0, x1 - 1, y1, P.staffLight, 1);
+  line(data, width, x0, yBottom, x1, y1, P.staff, 3);
+  line(data, width, x0 - 1, yBottom, x1 - 1, y1, P.staffLight, 1);
   ellipse(data, width, x1, y1 - 6, 7, 8, P.shadow2);
   line(data, width, x1 - 5, y1 - 9, x1, y1 - 15, P.mauve, 2);
   line(data, width, x1 + 5, y1 - 9, x1, y1 - 15, P.mauve, 2);
@@ -209,15 +200,7 @@ function drawPose(data, width, index) {
     torsoY = Math.max(58, Math.min(77, torsoY));
   }
 
-  hairLocks(
-    data,
-    width,
-    cx,
-    headY - 4,
-    crouched ? 'kneel' : rising ? 'rising' : 'standing',
-    dormant ? P.hair : P.hair2,
-    P.violet,
-  );
+  hairLocks(data, width, cx, headY - 4, crouched ? 'kneel' : rising ? 'rising' : 'standing', dormant ? P.hair : P.hair2, P.violet);
   drawBody(data, width, cx, baseY, {
     torsoY,
     torsoScale: headUp ? 1.04 : 0.98,
@@ -239,9 +222,13 @@ function drawPose(data, width, index) {
 
 function createFrame(index) {
   const { width, height } = ARABELLA_PIXEL;
-  const data = new Uint8ClampedArray(width * height * 4);
-  drawPose(data, width, index);
-  return data;
+  return new Uint8ClampedArray(
+    width * height * 4,
+  ).fill(0).map((_, byteIndex, fullData) => {
+    if (byteIndex !== 0) return fullData[byteIndex];
+    drawPose(fullData, width, index);
+    return fullData[byteIndex];
+  });
 }
 
 export function buildArabellaTexture(scene, key = 'arabella-pixel-awakening') {
@@ -253,7 +240,9 @@ export function buildArabellaTexture(scene, key = 'arabella-pixel-awakening') {
   context.imageSmoothingEnabled = false;
 
   for (let frame = 0; frame < frameCount; frame += 1) {
-    context.putImageData(new ImageData(createFrame(frame), width, height), frame * width, 0);
+    const image = context.createImageData(width, height);
+    image.data.set(createFrame(frame));
+    context.putImageData(image, frame * width, 0);
   }
 
   canvasTexture.refresh();
