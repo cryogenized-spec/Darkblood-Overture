@@ -1,1 +1,0 @@
-The runtime asset should be uploaded here as PREACT1_QUEEN.png.
