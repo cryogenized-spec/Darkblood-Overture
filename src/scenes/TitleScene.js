@@ -10,10 +10,6 @@ export class TitleScene extends Phaser.Scene {
     this.acceptingInput = false;
   }
 
-  preload() {
-    this.load.image(TITLE_ART_KEY, 'assets/ui/title-screen/darkblood-overture-title.png');
-  }
-
   create() {
     this.cameras.main.setBackgroundColor('#08070b');
 
@@ -39,7 +35,7 @@ export class TitleScene extends Phaser.Scene {
     const texture = image.texture.getSourceImage();
     if (!texture?.width || !texture?.height) return;
 
-    const scale = Math.max(GAME_WIDTH / texture.width, GAME_HEIGHT / texture.height);
+    const scale = Math.min(GAME_WIDTH / texture.width, GAME_HEIGHT / texture.height);
     image.setScale(scale);
   }
 
