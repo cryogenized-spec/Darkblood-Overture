@@ -1,7 +1,7 @@
 export const QUEEN = {
   id: 'queen',
-  displayName: 'THE QUEEN',
-  archetype: 'Necromancer',
+  displayName: 'ARABELLA',
+  archetype: 'Shadowborn Arcanist',
   visual: {
     ageRead: 'late-20s',
     skin: 'tanned Mediterranean complexion',
@@ -15,4 +15,9 @@ export const QUEEN = {
     primary: 'ancient staff',
   },
   animationSockets: ['idle', 'walk', 'cast', 'hurt', 'death'],
+  entrance: {
+    healthStartsEmpty: true,
+    lifeforceLabel: 'LIFEFORCE CONSOLIDATING',
+    awarenessFlash: '#e8d7ef',
+  },
 };
