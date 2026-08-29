@@ -1,7 +1,8 @@
-const CACHE_NAME = 'darkblood-overture-v1';
+const CACHE_NAME = 'darkblood-overture-v2';
+const BASE_URL = new URL('./', self.location.href);
 const APP_SHELL = [
-  '/',
-  '/manifest.webmanifest',
+  new URL('./', BASE_URL).href,
+  new URL('./manifest.webmanifest', BASE_URL).href,
 ];
 
 self.addEventListener('install', (event) => {
@@ -27,6 +28,24 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  const requestUrl = new URL(event.request.url);
+  const isNavigation = event.request.mode === 'navigate';
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match(APP_SHELL[0]))),
+    );
+    return;
+  }
+
+  if (requestUrl.origin !== self.location.origin) return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -34,6 +53,6 @@ self.addEventListener('fetch', (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/'))),
+      .catch(() => caches.match(event.request)),
   );
 });
