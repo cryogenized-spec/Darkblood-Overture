@@ -3,7 +3,6 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
 import { createLevel01Runtime } from '../data/level01.js';
 import { QUEEN } from '../data/queen.js';
 import { ArabellaAwakeningSprite } from '../entities/ArabellaAwakeningSprite.js';
-import { QueenPlaceholder } from '../entities/QueenPlaceholder.js';
 import { GameHUD } from '../ui/GameHUD.js';
 import { PauseMenu } from '../ui/PauseMenu.js';
 
@@ -42,17 +41,12 @@ export class AwakeningScene extends Phaser.Scene {
   }
 
   createQueenSprite() {
-    this.queenArtwork = new ArabellaAwakeningSprite(this, GAME_WIDTH / 2, 170);
-    if (this.queenArtwork.available) {
-      this.queen = this.queenArtwork;
-      return;
-    }
-    this.queen = new QueenPlaceholder(this, GAME_WIDTH / 2, 125);
-    this.queen.setAlpha(0);
+    this.queen = new ArabellaAwakeningSprite(this, GAME_WIDTH / 2, 170);
   }
 
   runQueenEntrance() {
     this.createQueenSprite();
+    this.queen.setAlpha(0);
     const black = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 1).setDepth(900);
 
     this.tweens.add({ targets: black, alpha: 0, duration: 420, ease: 'Sine.out' });
@@ -62,19 +56,8 @@ export class AwakeningScene extends Phaser.Scene {
     this.time.delayedCall(1780, () => this.tweens.add({ targets: black, alpha: 0, duration: 900, ease: 'Sine.inOut', onComplete: () => black.destroy() }));
 
     this.time.delayedCall(2050, () => {
-      if (this.queenArtwork?.available) {
-        this.runArtworkAwakening();
-        return;
-      }
-
       this.queen.setAlpha(1);
-      this.queen.kneel();
-      this.time.delayedCall(350, () => this.queen.rise());
-      this.time.delayedCall(1120, () => this.queen.rise());
-      this.time.delayedCall(1790, () => {
-        this.queen.lookUp();
-        this.createLunarCharge();
-      });
+      this.runArtworkAwakening();
     });
   }
 
@@ -104,18 +87,28 @@ export class AwakeningScene extends Phaser.Scene {
     this.time.delayedCall(180, () => {
       this.hud.flickerHealth();
       this.hud.setHealth(1);
-      const charge = this.add.circle(this.queen.x, this.queen.y - 28, 14, 0xb99bd0, 0.08)
+      this.queen.setLunarCharge(true);
+
+      const charge = this.add.circle(this.queen.x, this.queen.y - 80, 14, 0xb99bd0, 0.08)
         .setStrokeStyle(1, 0xe8d7ef, 0.8).setDepth(80);
-      this.tweens.add({ targets: charge, scale: 1.7, alpha: 0, duration: 1050, ease: 'Cubic.out', onComplete: () => charge.destroy() });
+      this.tweens.add({
+        targets: charge,
+        scale: 1.7,
+        alpha: 0,
+        duration: 1050,
+        ease: 'Cubic.out',
+        onComplete: () => charge.destroy(),
+      });
       this.time.delayedCall(1050, () => this.finishAwakening(chargeText));
     });
   }
 
   finishAwakening(chargeText) {
-    if (this.queenArtwork?.available) this.queen.frame('conscious');
+    this.queen.frame('conscious');
+    this.queen.setLunarCharge(false);
     this.hud.setSpellEnabled(true);
     this.tweens.add({ targets: chargeText, alpha: 0, duration: 260, onComplete: () => chargeText.destroy() });
-    const outline = this.add.circle(this.queen.x, this.queen.y - 42, 28, 0xe8d7ef, 0)
+    const outline = this.add.circle(this.queen.x, this.queen.y - 80, 34, 0xe8d7ef, 0)
       .setStrokeStyle(2, 0xe8d7ef, 0.95).setDepth(90);
     this.tweens.add({ targets: outline, scale: 1.45, alpha: 0, duration: 430, ease: 'Sine.out', onComplete: () => outline.destroy() });
     this.time.delayedCall(520, () => { this.showActTitle(); this.entranceComplete = true; });
