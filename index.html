@@ -10,43 +10,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Darkblood" />
     <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./orientation.css" />
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
     <title>Darkblood: Overture</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        background: #050507;
-        color: #f4f0e7;
-        font-family: Georgia, 'Times New Roman', serif;
-      }
-      html, body, #app, #game-shell {
-        width: 100%; height: 100%; margin: 0; overflow: hidden;
-      }
-      body {
-        min-width: 100vw; min-height: 100vh; background: #050507;
-        overscroll-behavior: none; user-select: none;
-        -webkit-user-select: none; -webkit-touch-callout: none;
-      }
-      #game-shell { position: relative; display: grid; place-items: center; background: #050507; }
-      #game-container { position: relative; display: grid; place-items: center; width: 100%; height: 100%; }
-      #orientation-gate {
-        position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
-        cursor: pointer; touch-action: manipulation; background: #050507;
-        padding: 2rem 1.5rem; opacity: 1; visibility: visible;
-      }
-      #orientation-gate-exit { animation: orientation-gate-fade 420ms ease forwards; pointer-events: none; }
-      .orientation-backdrop { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, rgba(109,40,217,.16), transparent 62%); }
-      .orientation-card { position: relative; width: min(100%, 28rem); padding: 2rem 1.75rem; text-align: center; overflow: hidden; border: 1px solid rgba(196,132,252,.25); border-radius: 2px; background: rgba(0,0,0,.75); box-shadow: 0 0 60px rgba(124,58,237,.14); }
-      .orientation-symbol { width: 4rem; height: 4rem; margin: 0 auto 1.25rem; display: grid; place-items: center; border: 1px solid rgba(221,214,254,.35); border-radius: 9999px; background: rgba(76,29,149,.25); color: #ddd6fe; font-size: 1.875rem; box-shadow: 0 0 28px rgba(168,85,247,.16); }
-      .orientation-kicker { margin: 0 0 .5rem; color: rgba(196,181,253,.7); font-size: .68rem; font-weight: 500; letter-spacing: .42em; text-transform: uppercase; }
-      .orientation-title { margin: 0 0 1rem; color: #f4f0e7; font-size: 1.5rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; text-shadow: 0 0 12px rgba(196,132,252,.16); }
-      .orientation-message { margin: 0 auto; max-width: 22rem; color: rgba(237,233,254,.7); font-size: .9rem; line-height: 1.5rem; }
-      #orientation-continue { margin-top: 1.75rem; padding: .75rem 1.5rem; border: 1px solid rgba(221,214,254,.35); background: rgba(76,29,149,.35); color: #f4f0e7; font: inherit; font-size: .75rem; letter-spacing: .28em; text-transform: uppercase; box-shadow: 0 0 22px rgba(168,85,247,.12); cursor: pointer; }
-      #orientation-continue.hidden { display: none; }
-      .orientation-hint { margin: 1.25rem 0 0; color: rgba(221,214,254,.35); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .63rem; letter-spacing: .22em; text-transform: uppercase; }
-      @keyframes orientation-gate-fade { from { opacity: 1; visibility: visible; } to { opacity: 0; visibility: hidden; } }
-    </style>
   </head>
   <body>
     <main id="app" aria-label="Darkblood: Overture">
@@ -73,71 +40,8 @@
       </div>
     </main>
 
-    <script>
-      (() => {
-        const gate = document.getElementById('orientation-gate');
-        const title = document.getElementById('orientation-title');
-        const message = document.getElementById('orientation-message');
-        const symbol = document.getElementById('orientation-symbol');
-        const button = document.getElementById('orientation-continue');
-        const hint = document.getElementById('orientation-hint');
-        let landscapeReady = false;
-        let acknowledged = false;
-
-        const isLandscape = () => window.innerWidth > window.innerHeight;
-
-        const updateOrientationState = () => {
-          landscapeReady = isLandscape();
-          if (acknowledged) return;
-          if (landscapeReady) {
-            symbol.textContent = '✦';
-            title.textContent = 'Landscape detected';
-            message.textContent = 'The veil is open. Tap anywhere to enter the Overture.';
-            button.hidden = false;
-            hint.textContent = 'Tap anywhere to continue';
-            gate.setAttribute('aria-label', 'Landscape detected. Tap anywhere to continue.');
-          } else {
-            symbol.textContent = '⟲';
-            title.textContent = 'Landscape only';
-            message.textContent = 'Turn your device sideways to enter the game.';
-            button.hidden = true;
-            hint.textContent = 'The game is locked to landscape.';
-            gate.setAttribute('aria-label', 'Orientation gate. Rotate your device to landscape.');
-          }
-        };
-
-        const acknowledge = () => {
-          if (!landscapeReady || acknowledged) return;
-          acknowledged = true;
-          button.disabled = true;
-          gate.id = 'orientation-gate-exit';
-          window.dispatchEvent(new Event('darkblood:orientation-ready'));
-          window.setTimeout(() => gate.remove(), 420);
-        };
-
-        const onKeydown = (event) => {
-          if ((event.key === 'Enter' || event.key === ' ') && landscapeReady) {
-            event.preventDefault();
-            acknowledge();
-          }
-        };
-
-        window.addEventListener('orientationchange', updateOrientationState, { passive: true });
-        window.addEventListener('resize', updateOrientationState, { passive: true });
-        gate.addEventListener('pointerup', acknowledge);
-        gate.addEventListener('keydown', onKeydown);
-        button.addEventListener('click', acknowledge);
-        updateOrientationState();
-      })();
-    </script>
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
-        });
-      }
-    </script>
+    <script defer src="./orientation.js"></script>
+    <script defer src="./service-worker-register.js"></script>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
