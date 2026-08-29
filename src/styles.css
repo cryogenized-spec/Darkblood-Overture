@@ -9,11 +9,6 @@
 
 * { box-sizing: border-box; }
 
-html, body, #app, #game-shell, #game-container {
-  margin: 0;
-  overflow: hidden;
-}
-
 html,
 body,
 #app,
@@ -21,6 +16,8 @@ body,
   width: 100%;
   height: 100%;
   height: 100dvh;
+  margin: 0;
+  overflow: hidden;
 }
 
 body {
@@ -33,23 +30,32 @@ body {
   -webkit-touch-callout: none;
 }
 
-canvas {
-  display: block;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
-
 #game-shell {
   position: relative;
   display: grid;
   place-items: center;
+  width: 100vw;
+  height: 100dvh;
   background: #050507;
 }
 
 #game-container {
   position: relative;
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
   display: grid;
   place-items: center;
+  flex: none;
+}
+
+#game-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 .orientation-card {
