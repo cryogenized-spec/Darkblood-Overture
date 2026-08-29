@@ -14,11 +14,6 @@ const config = {
   backgroundColor: '#050507',
   pixelArt: true,
   roundPixels: true,
-  render: {
-    antialias: false,
-    roundPixels: true,
-    pixelArt: true,
-  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
