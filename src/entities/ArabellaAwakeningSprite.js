@@ -1,10 +1,15 @@
 import Phaser from 'phaser';
-import { ARABELLA_FRAME, buildArabellaTexture, ARABELLA_PIXEL } from '../pixel/arabellaPixelArt.js';
+import {
+  ARABELLA_FRAME,
+  ARABELLA_PIXEL,
+  ARABELLA_TEXTURE_KEYS,
+  buildArabellaTexture,
+} from '../pixel/arabellaPixelArt.js';
 
 export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     buildArabellaTexture(scene);
-    super(scene, x, y, 'arabella-pixel-awakening', ARABELLA_FRAME.dormant);
+    super(scene, x, y, ARABELLA_TEXTURE_KEYS.dormant);
     scene.add.existing(this);
     this.setOrigin(0.5, 1);
     this.setDepth(20);
@@ -13,8 +18,8 @@ export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   }
 
   frame(name) {
-    const index = ARABELLA_FRAME[name];
-    if (index !== undefined) this.setFrame(index);
+    const textureKey = ARABELLA_TEXTURE_KEYS[name];
+    if (textureKey) this.setTexture(textureKey);
   }
 
   setLunarCharge(active) {
