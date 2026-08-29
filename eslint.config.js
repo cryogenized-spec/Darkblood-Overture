@@ -14,6 +14,7 @@ export default [
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
+        URL: 'readonly',
       },
     },
     rules: {
@@ -31,6 +32,7 @@ export default [
         self: 'readonly',
         caches: 'readonly',
         fetch: 'readonly',
+        URL: 'readonly',
       },
     },
   },
