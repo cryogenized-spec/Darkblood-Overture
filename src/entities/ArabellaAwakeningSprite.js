@@ -1,36 +1,25 @@
 import Phaser from 'phaser';
-
-const FRAME = {
-  dormant: 0,
-  shadowStir: 1,
-  beginRise: 2,
-  firstRise: 3,
-  halfSettle: 4,
-  secondRise: 5,
-  fullStance: 6,
-  settle: 7,
-  headLifting: 8,
-  headUp: 9,
-  eyesAwaken: 10,
-  lifeforceSurge: 11,
-  conscious: 12,
-};
+import { ARABELLA_FRAME, buildArabellaTexture, ARABELLA_PIXEL } from '../pixel/arabellaPixelArt.js';
 
 export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
-    super(scene, x, y, 'arabella-preact1', FRAME.dormant);
+    buildArabellaTexture(scene);
+    super(scene, x, y, 'arabella-pixel-awakening', ARABELLA_FRAME.dormant);
     scene.add.existing(this);
     this.setOrigin(0.5, 1);
     this.setDepth(20);
-    this.setScale(1.25);
-    this.available = scene.textures.exists('arabella-preact1');
-    if (!this.available) this.setVisible(false);
+    this.setScale(1);
+    this.setPipeline('TextureTint');
+    this.baseHeight = ARABELLA_PIXEL.height;
   }
 
   frame(name) {
-    if (!this.available) return;
-    const index = FRAME[name];
+    const index = ARABELLA_FRAME[name];
     if (index !== undefined) this.setFrame(index);
+  }
+
+  setLunarCharge(active) {
+    this.setTint(active ? 0xf0dff4 : 0xffffff);
   }
 
   useArtworkFrame(name) {
@@ -38,4 +27,4 @@ export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   }
 }
 
-export { FRAME as ARABELLA_AWAKENING_FRAMES };
+export { ARABELLA_FRAME as ARABELLA_AWAKENING_FRAMES };
