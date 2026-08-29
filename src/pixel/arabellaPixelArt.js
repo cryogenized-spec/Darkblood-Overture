@@ -85,7 +85,6 @@ function drawHead(data, width, cx, cy, eyesOn, headUp) {
   block(data, width, cx - 7, cy - 11, 14, 5, P.hair);
   block(data, width, cx - 11, cy - 7, 4, 9, P.hair);
   block(data, width, cx + 8, cy - 7, 4, 9, P.hair);
-
   line(data, width, cx - 10, cy - 4, cx - 18, cy - 11, P.skinDark, 3);
   line(data, width, cx + 10, cy - 4, cx + 18, cy - 11, P.skinDark, 3);
   line(data, width, cx - 10, cy - 3, cx - 16, cy - 7, P.skinLight, 1);
@@ -170,29 +169,17 @@ function drawPose(data, width, index) {
   let torsoY = 62;
   let baseY = 150;
   if (index === ARABELLA_FRAME.dormant) {
-    headY = 71;
-    torsoY = 92;
-    baseY = 146;
+    headY = 71; torsoY = 92; baseY = 146;
   } else if (index === ARABELLA_FRAME.shadowStir) {
-    headY = 66;
-    torsoY = 86;
-    baseY = 147;
+    headY = 66; torsoY = 86; baseY = 147;
   } else if (index === ARABELLA_FRAME.beginRise) {
-    headY = 61;
-    torsoY = 79;
-    baseY = 150;
+    headY = 61; torsoY = 79; baseY = 150;
   } else if (index === ARABELLA_FRAME.firstRise) {
-    headY = 54;
-    torsoY = 71;
-    baseY = 153;
+    headY = 54; torsoY = 71; baseY = 153;
   } else if (index === ARABELLA_FRAME.halfSettle) {
-    headY = 57;
-    torsoY = 74;
-    baseY = 153;
+    headY = 57; torsoY = 74; baseY = 153;
   } else if (index === ARABELLA_FRAME.secondRise) {
-    headY = 50;
-    torsoY = 66;
-    baseY = 153;
+    headY = 50; torsoY = 66; baseY = 153;
   }
 
   if (!crouched) {
@@ -201,19 +188,11 @@ function drawPose(data, width, index) {
   }
 
   hairLocks(data, width, cx, headY - 4, crouched ? 'kneel' : rising ? 'rising' : 'standing', dormant ? P.hair : P.hair2, P.violet);
-  drawBody(data, width, cx, baseY, {
-    torsoY,
-    torsoScale: headUp ? 1.04 : 0.98,
-    legSpread: 9,
-    crouched,
-  });
+  drawBody(data, width, cx, baseY, { torsoY, torsoScale: headUp ? 1.04 : 0.98, legSpread: 9, crouched });
   drawHead(data, width, cx, headY, eyesOn && !dormant, headUp);
   drawStaff(data, width, cx, 40, baseY + 5, index % 3 === 0 ? -7 : -4);
 
-  if (dormant || index === ARABELLA_FRAME.halfSettle) {
-    ellipse(data, width, cx, baseY + 2, 30, 7, P.shadow2);
-  }
-
+  if (dormant || index === ARABELLA_FRAME.halfSettle) ellipse(data, width, cx, baseY + 2, 30, 7, P.shadow2);
   if (headUp) {
     block(data, width, cx - 2, headY - 17, 4, 3, P.gold);
     block(data, width, cx - 1, headY - 19, 2, 2, P.gold);
@@ -222,13 +201,9 @@ function drawPose(data, width, index) {
 
 function createFrame(index) {
   const { width, height } = ARABELLA_PIXEL;
-  return new Uint8ClampedArray(
-    width * height * 4,
-  ).fill(0).map((_, byteIndex, fullData) => {
-    if (byteIndex !== 0) return fullData[byteIndex];
-    drawPose(fullData, width, index);
-    return fullData[byteIndex];
-  });
+  const data = new Uint8ClampedArray(width * height * 4);
+  drawPose(data, width, index);
+  return data;
 }
 
 export function buildArabellaTexture(scene, key = 'arabella-pixel-awakening') {
@@ -247,7 +222,6 @@ export function buildArabellaTexture(scene, key = 'arabella-pixel-awakening') {
 
   canvasTexture.refresh();
   canvasTexture.setFilter(Phaser.Textures.FilterMode.NEAREST);
-
   for (let frame = 0; frame < frameCount; frame += 1) {
     canvasTexture.add(frame, 0, frame * width, 0, width, height);
   }
