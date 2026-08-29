@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { ARABELLA_PALETTE as P } from './palette.js';
 
 export const ARABELLA_FRAME = Object.freeze({
@@ -17,8 +18,6 @@ export const ARABELLA_FRAME = Object.freeze({
 });
 
 export const ARABELLA_PIXEL = Object.freeze({ width: 128, height: 160, frameCount: 13 });
-
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 function setPixel(data, width, x, y, color) {
   if (x < 0 || y < 0 || x >= width || y >= data.length / width / 4) return;
@@ -49,7 +48,15 @@ function line(data, width, x0, y0, x1, y1, color, thickness = 1) {
   }
   for (let i = 0; i <= steps; i += 1) {
     const t = i / steps;
-    block(data, width, Math.round(x0 + (x1 - x0) * t), Math.round(y0 + (y1 - y0) * t), thickness, thickness, color);
+    block(
+      data,
+      width,
+      Math.round(x0 + (x1 - x0) * t),
+      Math.round(y0 + (y1 - y0) * t),
+      thickness,
+      thickness,
+      color,
+    );
   }
 }
 
@@ -75,7 +82,9 @@ function hairLocks(data, width, cx, topY, stance, color, highlight) {
     const baseX = cx + side * (10 + Math.floor(i / 2) * 6);
     const endX = baseX + side * (8 + ((i * 3) % sway));
     line(data, width, baseX, topY + 7 + i * 2, endX, topY + length, color, 2);
-    if (i < 4) line(data, width, baseX + side * 2, topY + 11 + i * 2, endX + side * 1, topY + length - 7, highlight, 1);
+    if (i < 4) {
+      line(data, width, baseX + side * 2, topY + 11 + i * 2, endX + side, topY + length - 7, highlight, 1);
+    }
   });
 }
 
@@ -85,7 +94,6 @@ function drawHead(data, width, cx, cy, eyesOn, headUp) {
   block(data, width, cx - 11, cy - 7, 4, 9, P.hair);
   block(data, width, cx + 8, cy - 7, 4, 9, P.hair);
 
-  // Demon ears: crisp angular silhouettes.
   line(data, width, cx - 10, cy - 4, cx - 18, cy - 11, P.skinDark, 3);
   line(data, width, cx + 10, cy - 4, cx + 18, cy - 11, P.skinDark, 3);
   line(data, width, cx - 10, cy - 3, cx - 16, cy - 7, P.skinLight, 1);
@@ -106,8 +114,8 @@ function drawHead(data, width, cx, cy, eyesOn, headUp) {
   }
 
   block(data, width, cx - 1, cy + 5, 2, 3, P.skinLight);
-  line(data, width, cx - 4, cy + 9, cx + 4, cy + 9, P.lip, 1);
   block(data, width, cx - 4, cy + 8, 8, 1, P.lip);
+  block(data, width, cx - 4, cy + 9, 8, 1, P.lip);
   block(data, width, cx - 4, cy + 10, 2, 2, P.lunar);
   block(data, width, cx + 2, cy + 10, 2, 2, P.lunar);
 }
@@ -148,17 +156,14 @@ function drawBody(data, width, cx, baseY, pose) {
   block(data, width, cx + 9, torsoY + 20, 4, 14, P.cloth2);
   line(data, width, cx - 12, torsoY + 12, cx - 3, torsoY + 9, P.mauve, 2);
   line(data, width, cx + 3, torsoY + 9, cx + 12, torsoY + 12, P.mauve, 2);
+  block(data, width, cx - 3, torsoY + 18, 6, 10, P.lunar);
 
   if (crouched) {
     ellipse(data, width, cx - 13, baseY - 5, 17, 9, P.cloth2);
     ellipse(data, width, cx + 13, baseY - 5, 17, 9, P.cloth2);
-    block(data, width, cx - 16, baseY, 12, 7, P.staff);
-    block(data, width, cx + 4, baseY, 12, 7, P.staff);
   } else {
     line(data, width, cx - 6, torsoY + 44, cx - legSpread, baseY - 6, P.cloth2, 5);
     line(data, width, cx + 6, torsoY + 44, cx + legSpread, baseY - 6, P.cloth2, 5);
-    line(data, width, cx - legSpread, baseY - 6, cx - legSpread - 2, baseY, P.staff, 4);
-    line(data, width, cx + legSpread, baseY - 6, cx + legSpread + 2, baseY, P.staff, 4);
   }
 }
 
@@ -200,37 +205,41 @@ function drawPose(data, width, index) {
   }
 
   if (!crouched) {
-    headY = clamp(headY, 39, 60);
-    torsoY = clamp(torsoY, 58, 77);
+    headY = Math.max(39, Math.min(60, headY));
+    torsoY = Math.max(58, Math.min(77, torsoY));
   }
 
-  hairLocks(data, width, cx, headY - 4, crouched ? 'kneel' : rising ? 'rising' : 'standing', dormant ? P.hair : P.hair2, P.violet);
-  drawBody(data, width, cx, baseY, { torsoY, torsoScale: headUp ? 1.04 : 0.98, legSpread: 9, crouched });
+  hairLocks(
+    data,
+    width,
+    cx,
+    headY - 4,
+    crouched ? 'kneel' : rising ? 'rising' : 'standing',
+    dormant ? P.hair : P.hair2,
+    P.violet,
+  );
+  drawBody(data, width, cx, baseY, {
+    torsoY,
+    torsoScale: headUp ? 1.04 : 0.98,
+    legSpread: 9,
+    crouched,
+  });
   drawHead(data, width, cx, headY, eyesOn && !dormant, headUp);
-
   drawStaff(data, width, cx, 40, baseY + 5, index % 3 === 0 ? -7 : -4);
 
-  if (index === ARABELLA_FRAME.dormant || index === ARABELLA_FRAME.shadowStir || index === ARABELLA_FRAME.halfSettle) {
+  if (dormant || index === ARABELLA_FRAME.halfSettle) {
     ellipse(data, width, cx, baseY + 2, 30, 7, P.shadow2);
   }
 
-  if (index >= ARABELLA_FRAME.headUp) {
-    // Crown-like gold hair ornament, deliberately tiny and pixel-sharp.
+  if (headUp) {
     block(data, width, cx - 2, headY - 17, 4, 3, P.gold);
     block(data, width, cx - 1, headY - 19, 2, 2, P.gold);
   }
 }
 
 function createFrame(index) {
-  const width = ARABELLA_PIXEL.width;
-  const height = ARABELLA_PIXEL.height;
+  const { width, height } = ARABELLA_PIXEL;
   const data = new Uint8ClampedArray(width * height * 4);
-  for (let i = 0; i < data.length; i += 4) {
-    data[i] = 0;
-    data[i + 1] = 0;
-    data[i + 2] = 0;
-    data[i + 3] = 0;
-  }
   drawPose(data, width, index);
   return data;
 }
@@ -244,12 +253,11 @@ export function buildArabellaTexture(scene, key = 'arabella-pixel-awakening') {
   context.imageSmoothingEnabled = false;
 
   for (let frame = 0; frame < frameCount; frame += 1) {
-    const image = new ImageData(createFrame(frame), width, height);
-    context.putImageData(image, frame * width, 0);
+    context.putImageData(new ImageData(createFrame(frame), width, height), frame * width, 0);
   }
+
   canvasTexture.refresh();
   canvasTexture.setFilter(Phaser.Textures.FilterMode.NEAREST);
-  canvasTexture.setPixelArt(true);
 
   for (let frame = 0; frame < frameCount; frame += 1) {
     canvasTexture.add(frame, 0, frame * width, 0, width, height);
