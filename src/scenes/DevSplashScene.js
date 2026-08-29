@@ -8,10 +8,6 @@ export class DevSplashScene extends Phaser.Scene {
     super('DevSplashScene');
   }
 
-  preload() {
-    this.load.image(DEV_SPLASH_KEY, 'assets/ui/dev-splash/obsidian-moon-studio-splash.png');
-  }
-
   create() {
     this.cameras.main.setBackgroundColor('#050507');
 
@@ -21,7 +17,7 @@ export class DevSplashScene extends Phaser.Scene {
 
     this.fitImageToViewport(image);
 
-    this.time.delayedCall(1700, () => {
+    this.time.delayedCall(2200, () => {
       this.scene.start('TitleScene');
     });
   }
@@ -30,7 +26,7 @@ export class DevSplashScene extends Phaser.Scene {
     const texture = image.texture.getSourceImage();
     if (!texture?.width || !texture?.height) return;
 
-    const scale = Math.max(GAME_WIDTH / texture.width, GAME_HEIGHT / texture.height);
+    const scale = Math.min(GAME_WIDTH / texture.width, GAME_HEIGHT / texture.height);
     image.setScale(scale);
   }
 }
