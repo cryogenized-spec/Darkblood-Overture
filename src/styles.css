@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #050507;
+  color: #f4f0e7;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app, #game-shell, #game-container {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  min-width: 100vw;
+  min-height: 100vh;
+  background: #050507;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#game-shell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: #050507;
+}
+
+#game-container {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+#orientation-warning {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  place-items: center;
+  background: #050507;
+  color: #f4f0e7;
+}
+
+.orientation-card {
+  max-width: min(80vw, 30rem);
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid rgba(244, 240, 231, 0.28);
+  background: rgba(10, 9, 13, 0.96);
+}
+
+.orientation-symbol {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+  opacity: 0.86;
+}
+
+.orientation-card p {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.orientation-card span {
+  opacity: 0.68;
+}
+
+@media (orientation: portrait) {
+  #orientation-warning { display: grid; }
+}
+
+/*
+ * The title-screen prompt intentionally lives in CSS/DOM, separate from the
+ * eventual artwork. The art can therefore be swapped without touching the
+ * interaction logic.
+ */
+.title-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  transform: translateX(-50%);
+  color: #f4f0e7;
+  font-family: 'UnifrakturCook', 'UnifrakturMaguntia', 'Old English Text MT', Georgia, serif;
+  font-size: clamp(0.9rem, 1.8vw, 1.35rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(244, 240, 231, 0.2);
+  animation: prompt-flicker 4s steps(1, end) infinite;
+  pointer-events: none;
+}
+
+@keyframes prompt-flicker {
+  0%, 7%, 10%, 14%, 100% { opacity: 1; }
+  8%, 13% { opacity: 0.34; }
+  9% { opacity: 0.82; }
+}
