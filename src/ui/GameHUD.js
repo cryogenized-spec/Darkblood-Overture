@@ -12,7 +12,7 @@ function element(tag, className, text = '') {
 }
 
 function emitDpad(direction, pressed) {
-  document.dispatchEvent(new CustomEvent('darkblood:dpad', {
+  document.dispatchEvent(new window.CustomEvent('darkblood:dpad', {
     detail: { direction, pressed },
   }));
 }
@@ -26,13 +26,10 @@ function bindDpadButton(button, direction) {
     event.preventDefault();
     emitDpad(direction, false);
   };
-
   button.addEventListener('pointerdown', press);
   button.addEventListener('pointerup', release);
   button.addEventListener('pointercancel', release);
   button.addEventListener('pointerleave', release);
-  button.addEventListener('lostpointercapture', () => emitDpad(direction, false));
-
   return () => {
     button.removeEventListener('pointerdown', press);
     button.removeEventListener('pointerup', release);
@@ -78,15 +75,12 @@ export class GameHUD {
   createPlayerStatus() {
     const portrait = element('div', 'game-hud-status__portrait', 'A');
     const name = element('div', 'game-hud-status__name', 'ARABELLA');
-
     const health = element('div', 'game-hud-bar game-hud-bar--health');
     this.healthFill = element('div', 'game-hud-bar__fill game-hud-fill--health');
     health.appendChild(this.healthFill);
-
     const mana = element('div', 'game-hud-bar game-hud-bar--mana');
     const manaFill = element('div', 'game-hud-bar__fill game-hud-fill--mana');
     mana.appendChild(manaFill);
-
     const hp = element('div', 'game-hud-label game-hud-label--health', 'HP');
     const mp = element('div', 'game-hud-label game-hud-label--mana', 'MP');
     this.status.append(portrait, name, health, mana, hp, mp);
@@ -104,12 +98,10 @@ export class GameHUD {
     const left = element('button', 'game-hud-dpad__button game-hud-dpad__button--left', '‹');
     const right = element('button', 'game-hud-dpad__button game-hud-dpad__button--right', '›');
     const label = element('span', 'game-hud-dpad__move', 'MOVE');
-
     left.type = 'button';
     right.type = 'button';
     left.setAttribute('aria-label', 'Move left');
     right.setAttribute('aria-label', 'Move right');
-
     this.dpad.append(left, right, label);
     this.overlay.appendChild(this.dpad);
     this.dpadCleanup.push(bindDpadButton(left, 'left'));
