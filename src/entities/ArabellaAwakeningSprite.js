@@ -1,55 +1,53 @@
-import Phaser from 'phaser';
 import {
   ARABELLA_AWAKENING_FRAMES,
   ARABELLA_SPRITE_DISPLAY_HEIGHT,
   ARABELLA_TEXTURE_KEYS,
 } from '../data/arabellaAwakeningFrames.js';
 
-export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
-  constructor(scene, x, y) {
+export class ArabellaAwakeningSprite {
+  static create(scene, x, y) {
     const textureKey = ARABELLA_TEXTURE_KEYS.dormant;
     if (!scene.textures.exists(textureKey)) {
       throw new Error(`Arabella texture '${textureKey}' was not loaded before AwakeningScene.`);
     }
 
-    super(scene, x, y, textureKey);
-    scene.add.existing(this);
-    this.setOrigin(0.5, 1);
-    this.setDepth(20);
-    this.setVisible(true);
-    this.setAlpha(1);
-    this.baseHeight = ARABELLA_SPRITE_DISPLAY_HEIGHT;
-    this.applyFrameScale();
-  }
+    const sprite = scene.add.sprite(x, y, textureKey);
+    sprite.setOrigin(0.5, 1);
+    sprite.setDepth(20);
+    sprite.setVisible(true);
+    sprite.setAlpha(1);
+    sprite.setScrollFactor(0);
+    sprite.baseHeight = ARABELLA_SPRITE_DISPLAY_HEIGHT;
 
-  frame(name) {
-    const frame = ARABELLA_AWAKENING_FRAMES.find((entry) => entry.name === name);
-    if (!frame) return;
+    const applyFrameScale = () => {
+      const source = sprite.texture.getSourceImage();
+      if (!source || source.height <= 0) {
+        throw new Error('Arabella texture has invalid source dimensions.');
+      }
 
-    const textureKey = ARABELLA_TEXTURE_KEYS[name];
-    if (!this.scene.textures.exists(textureKey)) {
-      throw new Error(`Arabella texture '${textureKey}' is missing.`);
-    }
+      sprite.setScale(sprite.baseHeight / source.height);
+    };
 
-    this.setTexture(textureKey);
-    this.applyFrameScale();
-    this.setVisible(true);
-  }
+    sprite.frame = (name) => {
+      const frame = ARABELLA_AWAKENING_FRAMES.find((entry) => entry.name === name);
+      if (!frame) throw new Error(`Unknown Arabella awakening frame '${name}'.`);
 
-  applyFrameScale() {
-    const source = this.texture.getSourceImage();
-    if (!source || source.height <= 0) {
-      throw new Error('Arabella texture has invalid source dimensions.');
-    }
+      const nextKey = ARABELLA_TEXTURE_KEYS[name];
+      if (!scene.textures.exists(nextKey)) {
+        throw new Error(`Arabella texture '${name}' is missing.`);
+      }
 
-    this.setScale(this.baseHeight / source.height);
-  }
+      sprite.setTexture(nextKey);
+      applyFrameScale();
+      sprite.setVisible(true);
+    };
 
-  setLunarCharge(active) {
-    this.setTint(active ? 0xf0dff4 : 0xffffff);
-  }
+    sprite.setLunarCharge = (active) => {
+      sprite.setTint(active ? 0xf0dff4 : 0xffffff);
+    };
 
-  useArtworkFrame(name) {
-    this.frame(name);
+    sprite.useArtworkFrame = sprite.frame;
+    applyFrameScale();
+    return sprite;
   }
 }
