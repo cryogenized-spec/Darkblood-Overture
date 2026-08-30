@@ -1,5 +1,9 @@
 import Phaser from 'phaser';
-import { ARABELLA_AWAKENING_FRAMES, ARABELLA_SPRITE_SIZE, ARABELLA_TEXTURE_KEYS } from '../data/arabellaAwakeningFrames.js';
+import {
+  ARABELLA_AWAKENING_FRAMES,
+  ARABELLA_SPRITE_DISPLAY_HEIGHT,
+  ARABELLA_TEXTURE_KEYS,
+} from '../data/arabellaAwakeningFrames.js';
 
 export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
@@ -12,10 +16,10 @@ export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
     scene.add.existing(this);
     this.setOrigin(0.5, 1);
     this.setDepth(20);
-    this.setScale(1);
     this.setVisible(true);
     this.setAlpha(1);
-    this.baseHeight = ARABELLA_SPRITE_SIZE.height;
+    this.baseHeight = ARABELLA_SPRITE_DISPLAY_HEIGHT;
+    this.applyFrameScale();
   }
 
   frame(name) {
@@ -28,7 +32,17 @@ export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
     }
 
     this.setTexture(textureKey);
+    this.applyFrameScale();
     this.setVisible(true);
+  }
+
+  applyFrameScale() {
+    const source = this.texture.getSourceImage();
+    if (!source || source.height <= 0) {
+      throw new Error('Arabella texture has invalid source dimensions.');
+    }
+
+    this.setScale(this.baseHeight / source.height);
   }
 
   setLunarCharge(active) {
