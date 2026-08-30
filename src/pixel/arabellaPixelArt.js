@@ -20,7 +20,7 @@ export const ARABELLA_FRAME = Object.freeze({
 export const ARABELLA_PIXEL = Object.freeze({ width: 128, height: 160, frameCount: 13 });
 
 export const ARABELLA_TEXTURE_KEYS = Object.freeze(
-  Object.fromEntries(Object.entries(ARABELLA_FRAME).map(([name, index]) => [name, `arabella-pixel-${name}`])),
+  Object.fromEntries(Object.entries(ARABELLA_FRAME).map(([name]) => [name, `arabella-pixel-${name}`])),
 );
 
 function setPixel(data, width, x, y, color) {
@@ -210,23 +210,24 @@ function createFrame(index) {
   return data;
 }
 
-function buildFrameTexture(scene, name) {
-  const key = ARABELLA_TEXTURE_KEYS[name];
+export function buildArabellaTexture(scene, key = 'arabella-pixel-awakening') {
   if (scene.textures.exists(key)) return scene.textures.get(key);
 
-  const { width, height } = ARABELLA_PIXEL;
-  const texture = scene.textures.createCanvas(key, width, height);
-  const context = texture.getContext();
-  context.imageSmoothingEnabled = false;
-  const image = context.createImageData(width, height);
-  image.data.set(createFrame(ARABELLA_FRAME[name]));
-  context.putImageData(image, 0, 0);
-  texture.refresh();
-  texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
-  return texture;
-}
+  const { width, height, frameCount } = ARABELLA_PIXEL;
+  const canvasTextures = [];
 
-export function buildArabellaTexture(scene) {
-  Object.keys(ARABELLA_FRAME).forEach((name) => buildFrameTexture(scene, name));
-  return scene.textures.get(ARABELLA_TEXTURE_KEYS.dormant);
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    const textureKey = ARABELLA_TEXTURE_KEYS[Object.keys(ARABELLA_FRAME)[frame]];
+    const canvasTexture = scene.textures.createCanvas(textureKey, width, height);
+    const context = canvasTexture.context;
+    context.imageSmoothingEnabled = false;
+    const image = context.createImageData(width, height);
+    image.data.set(createFrame(frame));
+    context.putImageData(image, 0, 0);
+    canvasTexture.refresh();
+    canvasTexture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    canvasTextures.push(canvasTexture);
+  }
+
+  return canvasTextures[0];
 }
