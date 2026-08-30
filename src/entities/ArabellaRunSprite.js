@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import {
   ARABELLA_RUN_DISPLAY_HEIGHT,
   ARABELLA_RUN_FRAMES,
@@ -9,70 +8,77 @@ const LEFT_SEQUENCE = ['contactLeft', 'downLeft', 'passingLeft', 'upLeft', 'tran
 const RIGHT_SEQUENCE = ['contactRight', 'downRight', 'passingRight', 'upRight', 'transitionRight', 'settleRight'];
 const RUN_FRAME_MS = 90;
 
-export class ArabellaRunSprite extends Phaser.GameObjects.Sprite {
-  constructor(scene, x, y) {
+export class ArabellaRunSprite {
+  static create(scene, x, y) {
     const textureKey = ARABELLA_RUN_TEXTURE_KEYS.contactRight;
     if (!scene.textures.exists(textureKey)) {
       throw new Error(`Arabella run texture '${textureKey}' was not loaded before GameScene.`);
     }
 
-    super(scene, x, y, textureKey);
-    scene.add.existing(this);
-    this.setOrigin(0.5, 1);
-    this.setDepth(20);
-    this.setVisible(true);
-    this.baseHeight = ARABELLA_RUN_DISPLAY_HEIGHT;
-    this.facing = 'right';
-    this.running = false;
-    this.sequenceIndex = 0;
-    this.frameTimer = 0;
-    this.applyFrameScale();
-  }
+    const sprite = scene.add.sprite(x, y, textureKey);
+    sprite.setOrigin(0.5, 1);
+    sprite.setDepth(20);
+    sprite.setVisible(true);
+    sprite.setAlpha(1);
+    sprite.setScrollFactor(0);
+    sprite.baseHeight = ARABELLA_RUN_DISPLAY_HEIGHT;
+    sprite.facing = 'right';
+    sprite.running = false;
+    sprite.sequenceIndex = 0;
+    sprite.frameTimer = 0;
 
-  setFacing(direction) {
-    this.facing = direction === 'left' ? 'left' : 'right';
-  }
+    const applyFrameScale = () => {
+      const source = sprite.texture.getSourceImage();
+      if (!source || source.height <= 0) {
+        throw new Error('Arabella run texture has invalid source dimensions.');
+      }
 
-  startRun() {
-    this.running = true;
-  }
+      sprite.setScale(sprite.baseHeight / source.height);
+    };
 
-  stopRun() {
-    if (!this.running) return;
-    this.running = false;
-    this.sequenceIndex = 0;
-    this.frameTimer = 0;
-    this.frame(this.facing === 'left' ? 'contactLeft' : 'contactRight');
-  }
+    sprite.setFacing = (direction) => {
+      sprite.facing = direction === 'left' ? 'left' : 'right';
+    };
 
-  updateRun(deltaMs) {
-    if (!this.running) return;
-    this.frameTimer += deltaMs;
-    while (this.frameTimer >= RUN_FRAME_MS) {
-      this.frameTimer -= RUN_FRAME_MS;
-      const sequence = this.facing === 'left' ? LEFT_SEQUENCE : RIGHT_SEQUENCE;
-      this.sequenceIndex = (this.sequenceIndex + 1) % sequence.length;
-      this.frame(sequence[this.sequenceIndex]);
-    }
-  }
+    sprite.startRun = () => {
+      sprite.running = true;
+    };
 
-  frame(name) {
-    if (!ARABELLA_RUN_FRAMES.some((entry) => entry.name === name)) return;
-    const textureKey = ARABELLA_RUN_TEXTURE_KEYS[name];
-    if (!this.scene.textures.exists(textureKey)) {
-      throw new Error(`Arabella run texture '${name}' is missing.`);
-    }
+    sprite.stopRun = () => {
+      if (!sprite.running) return;
+      sprite.running = false;
+      sprite.sequenceIndex = 0;
+      sprite.frameTimer = 0;
+      sprite.frame(sprite.facing === 'left' ? 'contactLeft' : 'contactRight');
+    };
 
-    this.setTexture(textureKey);
-    this.applyFrameScale();
-  }
+    sprite.updateRun = (deltaMs) => {
+      if (!sprite.running) return;
+      sprite.frameTimer += deltaMs;
+      while (sprite.frameTimer >= RUN_FRAME_MS) {
+        sprite.frameTimer -= RUN_FRAME_MS;
+        const sequence = sprite.facing === 'left' ? LEFT_SEQUENCE : RIGHT_SEQUENCE;
+        sprite.sequenceIndex = (sprite.sequenceIndex + 1) % sequence.length;
+        sprite.frame(sequence[sprite.sequenceIndex]);
+      }
+    };
 
-  applyFrameScale() {
-    const source = this.texture.getSourceImage();
-    if (!source || source.height <= 0) {
-      throw new Error('Arabella run texture has invalid source dimensions.');
-    }
+    sprite.frame = (name) => {
+      if (!ARABELLA_RUN_FRAMES.some((entry) => entry.name === name)) {
+        throw new Error(`Unknown Arabella run frame '${name}'.`);
+      }
 
-    this.setScale(this.baseHeight / source.height);
+      const nextKey = ARABELLA_RUN_TEXTURE_KEYS[name];
+      if (!scene.textures.exists(nextKey)) {
+        throw new Error(`Arabella run texture '${name}' is missing.`);
+      }
+
+      sprite.setTexture(nextKey);
+      applyFrameScale();
+      sprite.setVisible(true);
+    };
+
+    applyFrameScale();
+    return sprite;
   }
 }
