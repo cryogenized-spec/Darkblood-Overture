@@ -12,9 +12,6 @@ function getOrCreateOverlay() {
   image.alt = '';
   image.draggable = false;
   image.hidden = true;
-  image.addEventListener('load', () => {
-    image.hidden = false;
-  });
   overlay.appendChild(image);
 
   document.getElementById('game-container')?.appendChild(overlay);
@@ -24,14 +21,35 @@ function getOrCreateOverlay() {
 export function showCinematicArt(path, alt = '') {
   const overlay = getOrCreateOverlay();
   const image = overlay.querySelector('img');
-  if (!image) return overlay;
+  if (!image) return { overlay, ready: Promise.reject(new Error('Cinematic image element not found.')) };
 
   image.alt = alt;
   image.hidden = true;
-  image.src = path;
-  if (image.complete && image.naturalWidth > 0) image.hidden = false;
+
+  const ready = new Promise((resolve, reject) => {
+    const handleLoad = () => {
+      image.hidden = false;
+      cleanup();
+      resolve();
+    };
+    const handleError = () => {
+      cleanup();
+      reject(new Error(`Failed to load cinematic artwork: ${path}`));
+    };
+    const cleanup = () => {
+      image.removeEventListener('load', handleLoad);
+      image.removeEventListener('error', handleError);
+    };
+
+    image.addEventListener('load', handleLoad, { once: true });
+    image.addEventListener('error', handleError, { once: true });
+
+    image.src = path;
+    if (image.complete && image.naturalWidth > 0) handleLoad();
+  });
+
   overlay.hidden = false;
-  return overlay;
+  return { overlay, ready };
 }
 
 export function hideCinematicArt() {
