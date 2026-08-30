@@ -4,8 +4,14 @@ import {
   ARABELLA_RUN_TEXTURE_KEYS,
 } from '../data/arabellaRunFrames.js';
 
-const LEFT_SEQUENCE = ['contactLeft', 'downLeft', 'passingLeft', 'upLeft', 'transitionLeft', 'settleLeft'];
-const RIGHT_SEQUENCE = ['contactRight', 'downRight', 'passingRight', 'upRight', 'transitionRight', 'settleRight'];
+const RUN_SEQUENCE = [
+  'contactRight',
+  'downRight',
+  'passingRight',
+  'upRight',
+  'transitionRight',
+  'settleRight',
+];
 const RUN_FRAME_MS = 90;
 
 export class ArabellaRunSprite {
@@ -20,7 +26,7 @@ export class ArabellaRunSprite {
     sprite.setDepth(20);
     sprite.setVisible(true);
     sprite.setAlpha(1);
-    sprite.setScrollFactor(0);
+    sprite.setScrollFactor(1);
     sprite.baseHeight = ARABELLA_RUN_DISPLAY_HEIGHT;
     sprite.facing = 'right';
     sprite.running = false;
@@ -32,12 +38,12 @@ export class ArabellaRunSprite {
       if (!source || source.height <= 0) {
         throw new Error('Arabella run texture has invalid source dimensions.');
       }
-
       sprite.setScale(sprite.baseHeight / source.height);
     };
 
     sprite.setFacing = (direction) => {
       sprite.facing = direction === 'left' ? 'left' : 'right';
+      sprite.setFlipX(sprite.facing === 'left');
     };
 
     sprite.startRun = () => {
@@ -49,7 +55,7 @@ export class ArabellaRunSprite {
       sprite.running = false;
       sprite.sequenceIndex = 0;
       sprite.frameTimer = 0;
-      sprite.setArtworkFrame(sprite.facing === 'left' ? 'contactLeft' : 'contactRight');
+      sprite.setArtworkFrame(RUN_SEQUENCE[0]);
     };
 
     sprite.updateRun = (deltaMs) => {
@@ -57,9 +63,8 @@ export class ArabellaRunSprite {
       sprite.frameTimer += deltaMs;
       while (sprite.frameTimer >= RUN_FRAME_MS) {
         sprite.frameTimer -= RUN_FRAME_MS;
-        const sequence = sprite.facing === 'left' ? LEFT_SEQUENCE : RIGHT_SEQUENCE;
-        sprite.sequenceIndex = (sprite.sequenceIndex + 1) % sequence.length;
-        sprite.setArtworkFrame(sequence[sprite.sequenceIndex]);
+        sprite.sequenceIndex = (sprite.sequenceIndex + 1) % RUN_SEQUENCE.length;
+        sprite.setArtworkFrame(RUN_SEQUENCE[sprite.sequenceIndex]);
       }
     };
 
@@ -67,12 +72,10 @@ export class ArabellaRunSprite {
       if (!ARABELLA_RUN_FRAMES.some((entry) => entry.name === name)) {
         throw new Error(`Unknown Arabella run frame '${name}'.`);
       }
-
       const nextKey = ARABELLA_RUN_TEXTURE_KEYS[name];
       if (!scene.textures.exists(nextKey)) {
         throw new Error(`Arabella run texture '${name}' is missing.`);
       }
-
       sprite.setTexture(nextKey);
       applyFrameScale();
       sprite.setVisible(true);
