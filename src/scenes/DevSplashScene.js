@@ -19,8 +19,7 @@ export class DevSplashScene extends Phaser.Scene {
         if (!this.scene.isActive('DevSplashScene')) return;
         this.time.delayedCall(DEV_SPLASH_DURATION_MS, () => this.advance());
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(() => {
         this.advance();
       });
 
