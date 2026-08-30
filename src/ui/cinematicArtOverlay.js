@@ -1,22 +1,35 @@
 const OVERLAY_ID = 'cinematic-art-overlay';
 
-export function showCinematicArt(path, alt = '') {
+function getOrCreateOverlay() {
   let overlay = document.getElementById(OVERLAY_ID);
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = OVERLAY_ID;
-    overlay.setAttribute('aria-hidden', 'true');
+  if (overlay) return overlay;
 
-    const image = document.createElement('img');
-    image.alt = alt;
-    image.draggable = false;
-    overlay.appendChild(image);
+  overlay = document.createElement('div');
+  overlay.id = OVERLAY_ID;
+  overlay.setAttribute('aria-hidden', 'true');
 
-    document.getElementById('game-container')?.appendChild(overlay);
-  }
+  const image = document.createElement('img');
+  image.alt = '';
+  image.draggable = false;
+  image.hidden = true;
+  image.addEventListener('load', () => {
+    image.hidden = false;
+  });
+  overlay.appendChild(image);
 
+  document.getElementById('game-container')?.appendChild(overlay);
+  return overlay;
+}
+
+export function showCinematicArt(path, alt = '') {
+  const overlay = getOrCreateOverlay();
   const image = overlay.querySelector('img');
-  if (image) image.src = path;
+  if (!image) return overlay;
+
+  image.alt = alt;
+  image.hidden = true;
+  image.src = path;
+  if (image.complete && image.naturalWidth > 0) image.hidden = false;
   overlay.hidden = false;
   return overlay;
 }
