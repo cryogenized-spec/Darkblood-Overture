@@ -11,6 +11,36 @@ function element(tag, className, text = '') {
   return node;
 }
 
+function emitDpad(direction, pressed) {
+  document.dispatchEvent(new CustomEvent('darkblood:dpad', {
+    detail: { direction, pressed },
+  }));
+}
+
+function bindDpadButton(button, direction) {
+  const press = (event) => {
+    event.preventDefault();
+    emitDpad(direction, true);
+  };
+  const release = (event) => {
+    event.preventDefault();
+    emitDpad(direction, false);
+  };
+
+  button.addEventListener('pointerdown', press);
+  button.addEventListener('pointerup', release);
+  button.addEventListener('pointercancel', release);
+  button.addEventListener('pointerleave', release);
+  button.addEventListener('lostpointercapture', () => emitDpad(direction, false));
+
+  return () => {
+    button.removeEventListener('pointerdown', press);
+    button.removeEventListener('pointerup', release);
+    button.removeEventListener('pointercancel', release);
+    button.removeEventListener('pointerleave', release);
+  };
+}
+
 export class GameHUD {
   constructor(scene) {
     this.scene = scene;
@@ -22,6 +52,7 @@ export class GameHUD {
     this.healthFill = null;
     this.spellNode = null;
     this.resizeObserver = null;
+    this.dpadCleanup = [];
 
     this.createPlayerStatus();
     this.createUtilityMenu();
@@ -70,15 +101,26 @@ export class GameHUD {
   }
 
   createDPad() {
-    this.dpad.append(element('span', '', '‹'));
-    this.dpad.append(element('span', '', '›'));
-    this.dpad.append(element('span', 'game-hud-dpad__move', 'MOVE'));
+    const left = element('button', 'game-hud-dpad__button game-hud-dpad__button--left', '‹');
+    const right = element('button', 'game-hud-dpad__button game-hud-dpad__button--right', '›');
+    const label = element('span', 'game-hud-dpad__move', 'MOVE');
+
+    left.type = 'button';
+    right.type = 'button';
+    left.setAttribute('aria-label', 'Move left');
+    right.setAttribute('aria-label', 'Move right');
+
+    this.dpad.append(left, right, label);
     this.overlay.appendChild(this.dpad);
+    this.dpadCleanup.push(bindDpadButton(left, 'left'));
+    this.dpadCleanup.push(bindDpadButton(right, 'right'));
   }
 
   createSpellBar() {
-    const orb = element('div', 'game-hud-spell__orb', '☽');
+    const orb = element('button', 'game-hud-spell__orb', '☽');
     const label = element('div', 'game-hud-spell__label', 'DARK BOLT');
+    orb.type = 'button';
+    orb.setAttribute('aria-label', 'Dark Bolt');
     this.spell.append(orb, label);
     this.spellNode = this.spell;
     this.overlay.appendChild(this.spell);
@@ -102,6 +144,8 @@ export class GameHUD {
   }
 
   destroy() {
+    this.dpadCleanup.forEach((cleanup) => cleanup());
+    this.dpadCleanup = [];
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
     this.overlay.remove();
