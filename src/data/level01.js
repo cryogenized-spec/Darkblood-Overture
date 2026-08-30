@@ -2,6 +2,9 @@ export const LEVEL_01 = {
   id: 'graveyard-01',
   name: 'Graveyard',
   movement: 'horizontal',
+  world: {
+    width: 1600,
+  },
   art: {
     far: 'procedural-graveyard-far',
     mid: 'procedural-graveyard-mid',
