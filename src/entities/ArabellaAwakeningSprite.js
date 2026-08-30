@@ -28,7 +28,7 @@ export class ArabellaAwakeningSprite {
       sprite.setScale(sprite.baseHeight / source.height);
     };
 
-    sprite.frame = (name) => {
+    sprite.setArtworkFrame = (name) => {
       const frame = ARABELLA_AWAKENING_FRAMES.find((entry) => entry.name === name);
       if (!frame) throw new Error(`Unknown Arabella awakening frame '${name}'.`);
 
@@ -46,7 +46,6 @@ export class ArabellaAwakeningSprite {
       sprite.setTint(active ? 0xf0dff4 : 0xffffff);
     };
 
-    sprite.useArtworkFrame = sprite.frame;
     applyFrameScale();
     return sprite;
   }
