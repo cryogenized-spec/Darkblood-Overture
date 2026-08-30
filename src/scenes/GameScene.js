@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH } from '../config/gameConfig.js';
+import { GAME_HEIGHT, GAME_WIDTH } from '../config/gameConfig.js';
 import { createLevel01Runtime } from '../data/level01.js';
 import { LORE } from '../data/lore.js';
-import { ArabellaRunSprite } from '../entities/ArabellaRunSprite.js';
+import { ArabellaPlayer } from '../entities/ArabellaPlayer.js';
 import { GameHUD } from '../ui/GameHUD.js';
 import { PauseMenu } from '../ui/PauseMenu.js';
 import { PlayerController } from '../input/PlayerController.js';
@@ -19,9 +19,13 @@ export class GameScene extends Phaser.Scene {
     this.registry.set('currentLevel', level);
     this.registry.set('lore', LORE);
 
-    this.player = ArabellaRunSprite.create(this, GAME_WIDTH / 2, 155);
+    this.player = ArabellaPlayer.create(this, GAME_WIDTH / 2, level.ground.y);
+    this.player.setWorldBounds(32, level.world.width - 32);
+
+    this.cameras.main.setBounds(0, 0, level.world.width, GAME_HEIGHT);
+    this.cameras.main.startFollow(this.player, true, 1, 1);
+
     this.backdrop = createGraveyardBackdrop(this);
-    this.backdrop.update(this.player.x);
 
     this.hud = new GameHUD(this);
     this.hud.setHealth(1);
@@ -42,8 +46,7 @@ export class GameScene extends Phaser.Scene {
   update(_time, delta) {
     if (!this.player || !this.controls || this.pauseMenu?.isOpen) return;
     this.controls.update(this.player, delta / 1000);
-    this.player.updateRun(delta);
-    this.backdrop?.update(this.player.x);
+    this.player.updateAnimations(delta);
   }
 
   togglePause() {
