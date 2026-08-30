@@ -1,3 +1,5 @@
+import Phaser from 'phaser';
+
 const KEY_TO_DIRECTION = Object.freeze({
   ArrowLeft: 'left',
   KeyA: 'left',
