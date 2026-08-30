@@ -47,15 +47,23 @@ export class PlayerController {
 
   update(sprite, deltaSeconds) {
     if (!sprite || !sprite.active) return;
+
     const delta = this.axis * this.speed * deltaSeconds;
     if (delta === 0) {
       sprite.stopRun?.();
       return;
     }
 
-    sprite.x = Phaser.Math.Clamp(sprite.x + delta, 18, 302);
+    const left = sprite.worldLeft ?? 32;
+    const right = sprite.worldRight ?? 1280;
+    const nextX = Phaser.Math.Clamp(sprite.x + delta, left, right);
+    const moved = nextX !== sprite.x;
+
+    sprite.x = nextX;
     sprite.setFacing(this.axis < 0 ? 'left' : 'right');
-    sprite.startRun?.();
+
+    if (moved) sprite.startRun?.();
+    else sprite.stopRun?.();
   }
 
   destroy() {
