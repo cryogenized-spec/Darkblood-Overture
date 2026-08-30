@@ -1,15 +1,11 @@
 import Phaser from 'phaser';
-import {
-  ARABELLA_FRAME,
-  ARABELLA_PIXEL,
-  ARABELLA_TEXTURE_KEYS,
-} from '../pixel/arabellaPixelArt.js';
+import { ARABELLA_AWAKENING_FRAMES, ARABELLA_SPRITE_SIZE, ARABELLA_TEXTURE_KEYS } from '../data/arabellaAwakeningFrames.js';
 
 export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     const textureKey = ARABELLA_TEXTURE_KEYS.dormant;
     if (!scene.textures.exists(textureKey)) {
-      throw new Error(`Arabella texture '${textureKey}' was not prepared before AwakeningScene.`);
+      throw new Error(`Arabella texture '${textureKey}' was not loaded before AwakeningScene.`);
     }
 
     super(scene, x, y, textureKey);
@@ -19,18 +15,20 @@ export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
     this.setScale(1);
     this.setVisible(true);
     this.setAlpha(1);
-    this.baseHeight = ARABELLA_PIXEL.height;
+    this.baseHeight = ARABELLA_SPRITE_SIZE.height;
   }
 
   frame(name) {
+    const frame = ARABELLA_AWAKENING_FRAMES.find((entry) => entry.name === name);
+    if (!frame) return;
+
     const textureKey = ARABELLA_TEXTURE_KEYS[name];
-    if (textureKey) {
-      if (!this.scene.textures.exists(textureKey)) {
-        throw new Error(`Arabella texture '${textureKey}' is missing.`);
-      }
-      this.setTexture(textureKey);
-      this.setVisible(true);
+    if (!this.scene.textures.exists(textureKey)) {
+      throw new Error(`Arabella texture '${textureKey}' is missing.`);
     }
+
+    this.setTexture(textureKey);
+    this.setVisible(true);
   }
 
   setLunarCharge(active) {
@@ -41,5 +39,3 @@ export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
     this.frame(name);
   }
 }
-
-export { ARABELLA_FRAME as ARABELLA_AWAKENING_FRAMES };
