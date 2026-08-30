@@ -14,6 +14,14 @@ import {
   ARABELLA_RUN_SPRITE_PATH,
   ARABELLA_RUN_TEXTURE_KEYS,
 } from '../data/arabellaRunFrames.js';
+import {
+  DARK_BOLT_CAST_FRAMES,
+  DARK_BOLT_CAST_SPRITE_PATH,
+  DARK_BOLT_CAST_TEXTURE_KEYS,
+  DARK_BOLT_PROJECTILE_FRAMES,
+  DARK_BOLT_PROJECTILE_SPRITE_PATH,
+  DARK_BOLT_PROJECTILE_TEXTURE_KEYS,
+} from '../data/darkBoltFrames.js';
 
 const DEV_SPLASH_KEY = 'dev-splash-art';
 const TITLE_ART_KEY = 'title-screen-art';
@@ -45,6 +53,17 @@ export class BootScene extends Phaser.Scene {
     ARABELLA_RUN_FRAMES.forEach(({ name, file }) => {
       this.load.image(ARABELLA_RUN_TEXTURE_KEYS[name], `${ARABELLA_RUN_SPRITE_PATH}${file}`);
     });
+
+    DARK_BOLT_CAST_FRAMES.forEach(({ name, file }) => {
+      this.load.image(DARK_BOLT_CAST_TEXTURE_KEYS[name], `${DARK_BOLT_CAST_SPRITE_PATH}${file}`);
+    });
+
+    DARK_BOLT_PROJECTILE_FRAMES.forEach(({ name, file }) => {
+      this.load.image(
+        DARK_BOLT_PROJECTILE_TEXTURE_KEYS[name],
+        `${DARK_BOLT_PROJECTILE_SPRITE_PATH}${file}`,
+      );
+    });
   }
 
   create() {
@@ -52,12 +71,14 @@ export class BootScene extends Phaser.Scene {
       ...ARABELLA_AWAKENING_FRAMES.map(({ name }) => ARABELLA_TEXTURE_KEYS[name]),
       ...ARABELLA_IDLE_FRAMES.map(({ name }) => ARABELLA_IDLE_TEXTURE_KEYS[name]),
       ...ARABELLA_RUN_FRAMES.map(({ name }) => ARABELLA_RUN_TEXTURE_KEYS[name]),
+      ...DARK_BOLT_CAST_FRAMES.map(({ name }) => DARK_BOLT_CAST_TEXTURE_KEYS[name]),
+      ...DARK_BOLT_PROJECTILE_FRAMES.map(({ name }) => DARK_BOLT_PROJECTILE_TEXTURE_KEYS[name]),
     ].forEach((textureKey) => {
       const texture = this.textures.get(textureKey);
-      if (!texture) throw new Error(`Missing loaded Arabella texture '${textureKey}'.`);
+      if (!texture) throw new Error(`Missing loaded texture '${textureKey}'.`);
       const source = texture.getSourceImage();
       if (!source || source.width <= 0 || source.height <= 0) {
-        throw new Error(`Arabella texture '${textureKey}' has invalid source dimensions.`);
+        throw new Error(`Texture '${textureKey}' has invalid source dimensions.`);
       }
       texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
     });
