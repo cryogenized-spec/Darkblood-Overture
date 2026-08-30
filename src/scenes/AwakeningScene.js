@@ -6,6 +6,24 @@ import { ArabellaAwakeningSprite } from '../entities/ArabellaAwakeningSprite.js'
 import { GameHUD } from '../ui/GameHUD.js';
 import { PauseMenu } from '../ui/PauseMenu.js';
 
+const FRAME_INTERVAL_MS = 250;
+const FINAL_FRAME_INTERVAL_MS = 400;
+const AWAKENING_FRAME_TIMELINE = Object.freeze([
+  ['dormant', 0],
+  ['shadowStir', FRAME_INTERVAL_MS],
+  ['beginRise', FRAME_INTERVAL_MS * 2],
+  ['firstRise', FRAME_INTERVAL_MS * 3],
+  ['halfSettle', FRAME_INTERVAL_MS * 4],
+  ['secondRise', FRAME_INTERVAL_MS * 5],
+  ['fullStance', FRAME_INTERVAL_MS * 6],
+  ['settle', FRAME_INTERVAL_MS * 7],
+  ['headLifting', FRAME_INTERVAL_MS * 8],
+  ['headUp', FRAME_INTERVAL_MS * 9],
+  ['eyesAwaken', FRAME_INTERVAL_MS * 9 + FINAL_FRAME_INTERVAL_MS],
+  ['lifeforceSurge', FRAME_INTERVAL_MS * 9 + FINAL_FRAME_INTERVAL_MS * 2],
+  ['conscious', FRAME_INTERVAL_MS * 9 + FINAL_FRAME_INTERVAL_MS * 3],
+]);
+
 export class AwakeningScene extends Phaser.Scene {
   constructor() {
     super('AwakeningScene');
@@ -70,20 +88,13 @@ export class AwakeningScene extends Phaser.Scene {
   }
 
   runArtworkAwakening() {
-    this.queen.setArtworkFrame('dormant');
-    this.time.delayedCall(320, () => this.queen.setArtworkFrame('shadowStir'));
-    this.time.delayedCall(620, () => this.queen.setArtworkFrame('beginRise'));
-    this.time.delayedCall(940, () => this.queen.setArtworkFrame('firstRise'));
-    this.time.delayedCall(1410, () => this.queen.setArtworkFrame('halfSettle'));
-    this.time.delayedCall(1690, () => this.queen.setArtworkFrame('secondRise'));
-    this.time.delayedCall(2070, () => this.queen.setArtworkFrame('fullStance'));
-    this.time.delayedCall(2470, () => this.queen.setArtworkFrame('settle'));
-    this.time.delayedCall(2840, () => this.queen.setArtworkFrame('headLifting'));
-    this.time.delayedCall(3160, () => this.queen.setArtworkFrame('headUp'));
-    this.time.delayedCall(3490, () => {
-      this.queen.setArtworkFrame('eyesAwaken');
-      this.createLunarCharge();
-    });
+    for (const [frameName, delay] of AWAKENING_FRAME_TIMELINE) {
+      this.time.delayedCall(delay, () => {
+        if (!this.queen?.active || !this.scene.isActive('AwakeningScene')) return;
+        this.queen.setArtworkFrame(frameName);
+        if (frameName === 'eyesAwaken') this.createLunarCharge();
+      });
+    }
   }
 
   createLunarCharge() {
@@ -93,11 +104,12 @@ export class AwakeningScene extends Phaser.Scene {
 
     this.tweens.add({ targets: chargeText, alpha: 1, duration: 180 });
     this.time.delayedCall(180, () => {
+      if (!this.scene.isActive('AwakeningScene') || !this.queen?.active) return;
       this.hud.flickerHealth();
       this.hud.setHealth(1);
       this.queen.setLunarCharge(true);
 
-      const charge = this.add.circle(this.queen.x, this.queen.y - 80, 14, 0xb99bd0, 0.08)
+      const charge = this.add.circle(this.queen.x, this.queen.y - 58, 14, 0xb99bd0, 0.08)
         .setStrokeStyle(1, 0xe8d7ef, 0.8).setDepth(80);
       this.tweens.add({
         targets: charge,
@@ -112,11 +124,12 @@ export class AwakeningScene extends Phaser.Scene {
   }
 
   finishAwakening(chargeText) {
+    if (!this.scene.isActive('AwakeningScene') || !this.queen?.active) return;
     this.queen.setArtworkFrame('conscious');
     this.queen.setLunarCharge(false);
     this.hud.setSpellEnabled(true);
     this.tweens.add({ targets: chargeText, alpha: 0, duration: 260, onComplete: () => chargeText.destroy() });
-    const outline = this.add.circle(this.queen.x, this.queen.y - 80, 34, 0xe8d7ef, 0)
+    const outline = this.add.circle(this.queen.x, this.queen.y - 58, 28, 0xe8d7ef, 0)
       .setStrokeStyle(2, 0xe8d7ef, 0.95).setDepth(90);
     this.tweens.add({ targets: outline, scale: 1.45, alpha: 0, duration: 430, ease: 'Sine.out', onComplete: () => outline.destroy() });
     this.time.delayedCall(520, () => { this.showActTitle(); this.entranceComplete = true; });
