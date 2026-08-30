@@ -2,6 +2,7 @@ import { GAME_WIDTH } from '../config/gameConfig.js';
 import './GameHUD.css';
 
 const HUD_SCALE = 0.65;
+const HEALTH_FILL_WIDTH = 72;
 
 function element(tag, className, text = '') {
   const node = document.createElement(tag);
@@ -34,13 +35,7 @@ export class GameHUD {
     this.resizeObserver = new ResizeObserver(() => this.updateUnit(container));
     this.resizeObserver.observe(container);
 
-    this.overlay.style.opacity = '0';
-    this.scene.tweens.add({
-      targets: this.overlay,
-      alpha: 1,
-      duration: 350,
-      ease: 'Sine.out',
-    });
+    window.requestAnimationFrame(() => this.overlay.classList.add('is-visible'));
   }
 
   updateUnit(container) {
@@ -91,14 +86,8 @@ export class GameHUD {
 
   setHealth(value) {
     const amount = Math.max(0, Math.min(1, Number(value) || 0));
-    const width = 72 * amount;
-    this.healthFill.style.width = `${width}px`;
-    this.scene.tweens.add({
-      targets: this.healthFill,
-      width: width,
-      duration: 120,
-      ease: 'Quad.out',
-    });
+    const logicalWidth = HEALTH_FILL_WIDTH * amount;
+    this.healthFill.style.width = `calc(var(--game-unit) * ${logicalWidth})`;
   }
 
   flickerHealth() {
