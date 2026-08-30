@@ -21,7 +21,7 @@ export class GameScene extends Phaser.Scene {
     this.hud.setSpellEnabled(true);
     this.pauseMenu = new PauseMenu(this);
 
-    this.player = new ArabellaRunSprite(this, GAME_WIDTH / 2, 155);
+    this.player = ArabellaRunSprite.create(this, GAME_WIDTH / 2, 155);
     this.controls = new PlayerController(this, 70);
 
     this.input.keyboard?.on('keydown-ESC', this.togglePause, this);
