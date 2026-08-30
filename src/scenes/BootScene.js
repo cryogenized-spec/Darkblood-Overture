@@ -5,6 +5,11 @@ import {
   ARABELLA_TEXTURE_KEYS,
 } from '../data/arabellaAwakeningFrames.js';
 import {
+  ARABELLA_IDLE_FRAMES,
+  ARABELLA_IDLE_SPRITE_PATH,
+  ARABELLA_IDLE_TEXTURE_KEYS,
+} from '../data/arabellaIdleFrames.js';
+import {
   ARABELLA_RUN_FRAMES,
   ARABELLA_RUN_SPRITE_PATH,
   ARABELLA_RUN_TEXTURE_KEYS,
@@ -33,23 +38,29 @@ export class BootScene extends Phaser.Scene {
       this.load.image(ARABELLA_TEXTURE_KEYS[name], `${ARABELLA_SPRITE_PATH}${file}`);
     });
 
+    ARABELLA_IDLE_FRAMES.forEach(({ name, file }) => {
+      this.load.image(ARABELLA_IDLE_TEXTURE_KEYS[name], `${ARABELLA_IDLE_SPRITE_PATH}${file}`);
+    });
+
     ARABELLA_RUN_FRAMES.forEach(({ name, file }) => {
       this.load.image(ARABELLA_RUN_TEXTURE_KEYS[name], `${ARABELLA_RUN_SPRITE_PATH}${file}`);
     });
   }
 
   create() {
-    [...ARABELLA_AWAKENING_FRAMES.map(({ name }) => ARABELLA_TEXTURE_KEYS[name]),
-      ...ARABELLA_RUN_FRAMES.map(({ name }) => ARABELLA_RUN_TEXTURE_KEYS[name])]
-      .forEach((textureKey) => {
-        const texture = this.textures.get(textureKey);
-        if (!texture) throw new Error(`Missing loaded Arabella texture '${textureKey}'.`);
-        const source = texture.getSourceImage();
-        if (!source || source.width <= 0 || source.height <= 0) {
-          throw new Error(`Arabella texture '${textureKey}' has invalid source dimensions.`);
-        }
-        texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
-      });
+    [
+      ...ARABELLA_AWAKENING_FRAMES.map(({ name }) => ARABELLA_TEXTURE_KEYS[name]),
+      ...ARABELLA_IDLE_FRAMES.map(({ name }) => ARABELLA_IDLE_TEXTURE_KEYS[name]),
+      ...ARABELLA_RUN_FRAMES.map(({ name }) => ARABELLA_RUN_TEXTURE_KEYS[name]),
+    ].forEach((textureKey) => {
+      const texture = this.textures.get(textureKey);
+      if (!texture) throw new Error(`Missing loaded Arabella texture '${textureKey}'.`);
+      const source = texture.getSourceImage();
+      if (!source || source.width <= 0 || source.height <= 0) {
+        throw new Error(`Arabella texture '${textureKey}' has invalid source dimensions.`);
+      }
+      texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    });
 
     this.scene.start('DevSplashScene');
   }
