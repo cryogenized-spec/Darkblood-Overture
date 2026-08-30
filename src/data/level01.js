@@ -3,12 +3,19 @@ export const LEVEL_01 = {
   name: 'Graveyard',
   movement: 'horizontal',
   art: {
-    // Sockets for the upcoming three-plane parallax artwork.
-    far: null,
-    mid: null,
-    near: null,
+    far: 'procedural-graveyard-far',
+    mid: 'procedural-graveyard-mid',
+    near: 'procedural-graveyard-near',
+    parallax: {
+      far: 0.12,
+      mid: 0.36,
+      near: 0.72,
+    },
   },
-  ground: null,
+  ground: {
+    y: 160,
+    height: 20,
+  },
   waves: {
     mode: 'sequential',
     threatCurve: 'escalating',
