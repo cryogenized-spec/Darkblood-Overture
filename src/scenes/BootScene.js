@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import {
   ARABELLA_AWAKENING_FRAMES,
   ARABELLA_SPRITE_PATH,
+  ARABELLA_SPRITE_SIZE,
   ARABELLA_TEXTURE_KEYS,
 } from '../data/arabellaAwakeningFrames.js';
 
@@ -33,6 +34,14 @@ export class BootScene extends Phaser.Scene {
     ARABELLA_AWAKENING_FRAMES.forEach(({ name }) => {
       const texture = this.textures.get(ARABELLA_TEXTURE_KEYS[name]);
       if (!texture) throw new Error(`Missing loaded Arabella texture '${name}'.`);
+
+      const source = texture.getSourceImage();
+      if (source.width !== ARABELLA_SPRITE_SIZE.width || source.height !== ARABELLA_SPRITE_SIZE.height) {
+        throw new Error(
+          `Arabella frame '${name}' must be ${ARABELLA_SPRITE_SIZE.width}x${ARABELLA_SPRITE_SIZE.height}, got ${source.width}x${source.height}.`,
+        );
+      }
+
       texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
     });
 
