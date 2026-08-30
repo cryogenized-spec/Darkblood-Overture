@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
+import { GAME_WIDTH } from '../config/gameConfig.js';
 import { createLevel01Runtime } from '../data/level01.js';
 import { ArabellaRunSprite } from '../entities/ArabellaRunSprite.js';
 import { GameHUD } from '../ui/GameHUD.js';
