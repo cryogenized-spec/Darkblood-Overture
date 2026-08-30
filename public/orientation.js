@@ -37,6 +37,7 @@
   const acknowledge = () => {
     if (!landscapeReady || acknowledged) return;
     acknowledged = true;
+    window.darkbloodOrientationReady = true;
     button.disabled = true;
     gate.classList.add('orientation-gate-exit');
     window.dispatchEvent(new Event('darkblood:orientation-ready'));
