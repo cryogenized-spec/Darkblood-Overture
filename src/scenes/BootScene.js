@@ -1,4 +1,9 @@
 import Phaser from 'phaser';
+import {
+  ARABELLA_AWAKENING_FRAMES,
+  ARABELLA_SPRITE_PATH,
+  ARABELLA_TEXTURE_KEYS,
+} from '../data/arabellaAwakeningFrames.js';
 
 const DEV_SPLASH_KEY = 'dev-splash-art';
 const TITLE_ART_KEY = 'title-screen-art';
@@ -18,9 +23,19 @@ export class BootScene extends Phaser.Scene {
       TITLE_ART_KEY,
       `${ASSET_BASE}assets/ui/title-screen/darkblood-overture-title.png`,
     );
+
+    ARABELLA_AWAKENING_FRAMES.forEach(({ name, file }) => {
+      this.load.image(ARABELLA_TEXTURE_KEYS[name], `${ARABELLA_SPRITE_PATH}${file}`);
+    });
   }
 
   create() {
+    ARABELLA_AWAKENING_FRAMES.forEach(({ name }) => {
+      const texture = this.textures.get(ARABELLA_TEXTURE_KEYS[name]);
+      if (!texture) throw new Error(`Missing loaded Arabella texture '${name}'.`);
+      texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    });
+
     this.scene.start('DevSplashScene');
   }
 }
