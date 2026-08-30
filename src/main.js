@@ -28,5 +28,18 @@ const config = {
   },
 };
 
-const game = new Phaser.Game(config);
-window.darkbloodGame = game;
+let game = null;
+let gameStarted = false;
+
+function startGame() {
+  if (gameStarted) return;
+  gameStarted = true;
+  game = new Phaser.Game(config);
+  window.darkbloodGame = game;
+}
+
+window.addEventListener('darkblood:orientation-ready', startGame, { once: true });
+
+// Handles cases where the orientation bootstrap has already acknowledged before
+// this module evaluated.
+if (window.darkbloodOrientationReady === true) startGame();
