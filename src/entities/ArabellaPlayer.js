@@ -1,7 +1,6 @@
 import { ArabellaDarkBoltCastSprite } from './ArabellaDarkBoltCastSprite.js';
 import { ArabellaIdleSprite } from './ArabellaIdleSprite.js';
 import { ArabellaRunSprite } from './ArabellaRunSprite.js';
-import { DarkBoltProjectile } from './DarkBoltProjectile.js';
 
 const CAST_HAND_OFFSET_X = 18;
 const CAST_HAND_OFFSET_Y = -30;
@@ -19,7 +18,6 @@ export class ArabellaPlayer {
     container.facing = 'right';
     container.moving = false;
     container.casting = false;
-    container.castTimer = 0;
     container.castReleased = false;
     container.worldLeft = 32;
     container.worldRight = 1280;
@@ -67,7 +65,6 @@ export class ArabellaPlayer {
       if (container.casting || !scene.sys.isActive()) return false;
       container.casting = true;
       container.moving = false;
-      container.castTimer = 0;
       container.castReleased = false;
       idle.setVisible(false);
       run.setVisible(false);
