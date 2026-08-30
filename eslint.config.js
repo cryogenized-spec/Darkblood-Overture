@@ -16,6 +16,7 @@ export default [
         navigator: 'readonly',
         URL: 'readonly',
         Event: 'readonly',
+        ResizeObserver: 'readonly',
       },
     },
     rules: {
