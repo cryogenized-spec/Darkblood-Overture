@@ -101,6 +101,7 @@ body {
   position: absolute;
   left: 50%;
   bottom: 9%;
+  z-index: 30;
   transform: translateX(-50%);
   color: #f4f0e7;
   font-family: 'UnifrakturCook', 'UnifrakturMaguntia', 'Old English Text MT', Georgia, serif;
