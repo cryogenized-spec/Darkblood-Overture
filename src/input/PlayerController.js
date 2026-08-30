@@ -46,7 +46,7 @@ export class PlayerController {
   }
 
   update(sprite, deltaSeconds) {
-    if (!sprite || !sprite.active) return;
+    if (!sprite || !sprite.active || sprite.casting) return;
 
     const delta = this.axis * this.speed * deltaSeconds;
     if (delta === 0) {
