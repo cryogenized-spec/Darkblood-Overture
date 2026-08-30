@@ -5,8 +5,8 @@ import {
   ARABELLA_RUN_TEXTURE_KEYS,
 } from '../data/arabellaRunFrames.js';
 
-const LEFT_SEQUENCE = ['contactLeft', 'downLeft', 'passingLeft', 'upLeft'];
-const RIGHT_SEQUENCE = ['contactRight', 'downRight', 'passingRight', 'upRight'];
+const LEFT_SEQUENCE = ['contactLeft', 'downLeft', 'passingLeft', 'upLeft', 'transitionLeft', 'settleLeft'];
+const RIGHT_SEQUENCE = ['contactRight', 'downRight', 'passingRight', 'upRight', 'transitionRight', 'settleRight'];
 const RUN_FRAME_MS = 90;
 
 export class ArabellaRunSprite extends Phaser.GameObjects.Sprite {
