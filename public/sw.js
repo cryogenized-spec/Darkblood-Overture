@@ -1,4 +1,4 @@
-const CACHE_NAME = 'darkblood-overture-v3';
+const CACHE_NAME = 'darkblood-overture-v4';
 const BASE_URL = new URL('./', self.location.href);
 const SHELL_URLS = [
   new URL('./', BASE_URL).href,
