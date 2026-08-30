@@ -17,6 +17,7 @@ export default [
         URL: 'readonly',
         Event: 'readonly',
         ResizeObserver: 'readonly',
+        performance: 'readonly',
       },
     },
     rules: {
