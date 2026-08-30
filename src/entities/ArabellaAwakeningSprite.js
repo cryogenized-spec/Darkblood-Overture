@@ -3,12 +3,10 @@ import {
   ARABELLA_FRAME,
   ARABELLA_PIXEL,
   ARABELLA_TEXTURE_KEYS,
-  buildArabellaTexture,
 } from '../pixel/arabellaPixelArt.js';
 
 export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
-    buildArabellaTexture(scene);
     super(scene, x, y, ARABELLA_TEXTURE_KEYS.dormant);
     scene.add.existing(this);
     this.setOrigin(0.5, 1);
