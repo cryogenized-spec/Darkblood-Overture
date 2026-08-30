@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
+import { showCinematicArt, hideCinematicArt } from '../ui/cinematicArtOverlay.js';
 import { createTitlePrompt, hideTitlePrompt } from '../ui/titlePrompt.js';
 
-const TITLE_ART_KEY = 'title-screen-art';
+const TITLE_ART_PATH = `${import.meta.env.BASE_URL}assets/ui/title-screen/darkblood-overture-title.png`;
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -12,12 +12,7 @@ export class TitleScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#08070b');
-
-    const image = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, TITLE_ART_KEY)
-      .setOrigin(0.5)
-      .setDepth(1);
-
-    this.fitImageToViewport(image);
+    showCinematicArt(TITLE_ART_PATH, 'Darkblood: Overture title screen');
 
     createTitlePrompt();
     this.input.keyboard?.on('keydown', this.handleInput, this);
@@ -26,17 +21,10 @@ export class TitleScene extends Phaser.Scene {
 
     this.events.once('shutdown', () => {
       hideTitlePrompt();
+      hideCinematicArt();
       this.input.keyboard?.off('keydown', this.handleInput, this);
       this.input.off('pointerdown', this.handleInput, this);
     });
-  }
-
-  fitImageToViewport(image) {
-    const texture = image.texture.getSourceImage();
-    if (!texture?.width || !texture?.height) return;
-
-    const scale = Math.min(GAME_WIDTH / texture.width, GAME_HEIGHT / texture.height);
-    image.setScale(scale);
   }
 
   handleInput() {
