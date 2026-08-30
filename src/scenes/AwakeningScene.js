@@ -127,6 +127,9 @@ export class AwakeningScene extends Phaser.Scene {
       color: '#f4f0e7', fontFamily: 'serif', fontSize: '13px', fontStyle: 'italic', letterSpacing: 5,
     }).setOrigin(0.5).setDepth(500).setAlpha(0);
     this.tweens.add({ targets: act, alpha: 1, duration: 280, hold: 700, yoyo: true, ease: 'Sine.inOut', onComplete: () => act.destroy() });
+    this.time.delayedCall(1500, () => {
+      if (this.scene.isActive('AwakeningScene')) this.scene.start('GameScene');
+    });
   }
 
   togglePause() {
