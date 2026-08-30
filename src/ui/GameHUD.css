@@ -5,6 +5,10 @@
   pointer-events: none;
   --game-unit: 1px;
   font-family: Georgia, 'Times New Roman', serif;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   opacity: 0;
   transition: opacity 350ms ease;
 }
