@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import './styles.css';
+import { installAndroidBackExit } from './platform/androidBackExit.js';
 import { BootScene } from './scenes/BootScene.js';
 import { DevSplashScene } from './scenes/DevSplashScene.js';
 import { TitleScene } from './scenes/TitleScene.js';
@@ -27,6 +28,8 @@ const config = {
     activePointers: 3,
   },
 };
+
+installAndroidBackExit();
 
 let game = null;
 let gameStarted = false;
