@@ -1,4 +1,4 @@
-export const ARABELLA_RUN_DISPLAY_HEIGHT = 112;
+export const ARABELLA_RUN_DISPLAY_HEIGHT = 64;
 
 export const ARABELLA_RUN_FRAMES = Object.freeze([
   { name: 'contactLeft', file: '01-run-contact-left.png' },
