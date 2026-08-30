@@ -22,6 +22,10 @@ import {
   DARK_BOLT_PROJECTILE_SPRITE_PATH,
   DARK_BOLT_PROJECTILE_TEXTURE_KEYS,
 } from '../data/darkBoltFrames.js';
+import {
+  LEVEL_01_BACKGROUND_LAYERS,
+  LEVEL_01_BACKGROUND_PATH,
+} from '../data/level01Backgrounds.js';
 
 const DEV_SPLASH_KEY = 'dev-splash-art';
 const TITLE_ART_KEY = 'title-screen-art';
@@ -64,6 +68,10 @@ export class BootScene extends Phaser.Scene {
         `${DARK_BOLT_PROJECTILE_SPRITE_PATH}${file}`,
       );
     });
+
+    Object.values(LEVEL_01_BACKGROUND_LAYERS).forEach(({ key, file }) => {
+      this.load.image(key, `${LEVEL_01_BACKGROUND_PATH}${file}`);
+    });
   }
 
   create() {
@@ -81,6 +89,16 @@ export class BootScene extends Phaser.Scene {
         throw new Error(`Texture '${textureKey}' has invalid source dimensions.`);
       }
       texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    });
+
+    Object.values(LEVEL_01_BACKGROUND_LAYERS).forEach(({ key }) => {
+      const texture = this.textures.get(key);
+      if (!texture) throw new Error(`Missing loaded Level 01 background '${key}'.`);
+      const source = texture.getSourceImage();
+      if (!source || source.width <= 0 || source.height <= 0) {
+        throw new Error(`Level 01 background '${key}' has invalid source dimensions.`);
+      }
+      texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
     });
 
     this.scene.start('DevSplashScene');
