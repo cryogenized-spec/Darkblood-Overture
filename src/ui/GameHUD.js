@@ -17,6 +17,12 @@ function emitDpad(direction, pressed) {
   }));
 }
 
+function emitSpell(spell) {
+  document.dispatchEvent(new window.CustomEvent('darkblood:spell', {
+    detail: { spell },
+  }));
+}
+
 function bindDpadButton(button, direction) {
   const press = (event) => {
     event.preventDefault();
@@ -50,6 +56,7 @@ export class GameHUD {
     this.spellNode = null;
     this.resizeObserver = null;
     this.dpadCleanup = [];
+    this.onSpellPointer = null;
 
     this.createPlayerStatus();
     this.createUtilityMenu();
@@ -113,6 +120,11 @@ export class GameHUD {
     const label = element('div', 'game-hud-spell__label', 'DARK BOLT');
     orb.type = 'button';
     orb.setAttribute('aria-label', 'Dark Bolt');
+    this.onSpellPointer = (event) => {
+      event.preventDefault();
+      emitSpell('darkBolt');
+    };
+    orb.addEventListener('pointerdown', this.onSpellPointer);
     this.spell.append(orb, label);
     this.spellNode = this.spell;
     this.overlay.appendChild(this.spell);
@@ -138,6 +150,10 @@ export class GameHUD {
   destroy() {
     this.dpadCleanup.forEach((cleanup) => cleanup());
     this.dpadCleanup = [];
+    if (this.onSpellPointer) {
+      this.spellNode?.querySelector('.game-hud-spell__orb')?.removeEventListener('pointerdown', this.onSpellPointer);
+      this.onSpellPointer = null;
+    }
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
     this.overlay.remove();
