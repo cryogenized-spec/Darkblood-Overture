@@ -53,10 +53,18 @@ export class AwakeningScene extends Phaser.Scene {
     this.time.delayedCall(560, () => this.tweens.add({ targets: black, alpha: 1, duration: 220, ease: 'Sine.inOut' }));
     this.time.delayedCall(900, () => this.tweens.add({ targets: black, alpha: 0, duration: 420, ease: 'Sine.out' }));
     this.time.delayedCall(1480, () => this.tweens.add({ targets: black, alpha: 1, duration: 220, ease: 'Sine.inOut' }));
-    this.time.delayedCall(1780, () => this.tweens.add({ targets: black, alpha: 0, duration: 900, ease: 'Sine.inOut', onComplete: () => black.destroy() }));
+    this.time.delayedCall(1780, () => this.tweens.add({
+      targets: black,
+      alpha: 0,
+      duration: 300,
+      ease: 'Sine.inOut',
+      onComplete: () => black.destroy(),
+    }));
 
     this.time.delayedCall(2050, () => {
-      this.queen.setAlpha(1);
+      this.queen.setDepth(20);
+      this.queen.setVisible(true);
+      this.tweens.add({ targets: this.queen, alpha: 1, duration: 300, ease: 'Sine.out' });
       this.runArtworkAwakening();
     });
   }
