@@ -49,7 +49,7 @@ export class ArabellaRunSprite {
       sprite.running = false;
       sprite.sequenceIndex = 0;
       sprite.frameTimer = 0;
-      sprite.frame(sprite.facing === 'left' ? 'contactLeft' : 'contactRight');
+      sprite.setArtworkFrame(sprite.facing === 'left' ? 'contactLeft' : 'contactRight');
     };
 
     sprite.updateRun = (deltaMs) => {
@@ -59,11 +59,11 @@ export class ArabellaRunSprite {
         sprite.frameTimer -= RUN_FRAME_MS;
         const sequence = sprite.facing === 'left' ? LEFT_SEQUENCE : RIGHT_SEQUENCE;
         sprite.sequenceIndex = (sprite.sequenceIndex + 1) % sequence.length;
-        sprite.frame(sequence[sprite.sequenceIndex]);
+        sprite.setArtworkFrame(sequence[sprite.sequenceIndex]);
       }
     };
 
-    sprite.frame = (name) => {
+    sprite.setArtworkFrame = (name) => {
       if (!ARABELLA_RUN_FRAMES.some((entry) => entry.name === name)) {
         throw new Error(`Unknown Arabella run frame '${name}'.`);
       }
