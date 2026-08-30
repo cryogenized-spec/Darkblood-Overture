@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
+import { showCinematicArt, hideCinematicArt } from '../ui/cinematicArtOverlay.js';
 
-const DEV_SPLASH_KEY = 'dev-splash-art';
+const DEV_SPLASH_PATH = `${import.meta.env.BASE_URL}assets/ui/dev-splash/obsidian-moon-studio-splash.png`;
 
 export class DevSplashScene extends Phaser.Scene {
   constructor() {
@@ -10,23 +10,12 @@ export class DevSplashScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#050507');
-
-    const image = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, DEV_SPLASH_KEY)
-      .setOrigin(0.5)
-      .setDepth(1);
-
-    this.fitImageToViewport(image);
+    showCinematicArt(DEV_SPLASH_PATH, 'Obsidian Moon Studio');
 
     this.time.delayedCall(2200, () => {
       this.scene.start('TitleScene');
     });
-  }
 
-  fitImageToViewport(image) {
-    const texture = image.texture.getSourceImage();
-    if (!texture?.width || !texture?.height) return;
-
-    const scale = Math.min(GAME_WIDTH / texture.width, GAME_HEIGHT / texture.height);
-    image.setScale(scale);
+    this.events.once('shutdown', hideCinematicArt);
   }
 }
