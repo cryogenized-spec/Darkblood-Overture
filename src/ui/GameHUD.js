@@ -1,163 +1,120 @@
-import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
+import { GAME_WIDTH } from '../config/gameConfig.js';
+import './GameHUD.css';
 
-const UI = {
-  bone: 0xf4f0e7,
-  mauve: 0xc9aacd,
-  violet: 0x7b5aa0,
-  dark: 0x09080d,
-  red: 0xa72f45,
-  mana: 0x635b9a,
-};
+const HUD_SCALE = 0.65;
 
-function stylizedButton(scene, x, y, size, glyph, label = '') {
-  const container = scene.add.container(x, y);
-  const outer = scene.add.circle(0, 0, size / 2 + 2, UI.dark, 0.9)
-    .setStrokeStyle(1, UI.mauve, 0.65);
-  const inner = scene.add.circle(0, 0, size / 2 - 1, 0x15111b, 0.96)
-    .setStrokeStyle(1, UI.violet, 0.5);
-  const icon = scene.add.text(0, -1, glyph, {
-    color: '#f4f0e7',
-    fontFamily: 'serif',
-    fontSize: `${Math.max(6, Math.round(size * 0.28))}px`,
-    fontStyle: 'bold',
-  }).setOrigin(0.5);
-  container.add([outer, inner, icon]);
-  if (label) {
-    container.add(scene.add.text(0, size / 2 + 5, label, {
-      color: '#8f8095',
-      fontFamily: 'monospace',
-      fontSize: '4px',
-      letterSpacing: 0.5,
-    }).setOrigin(0.5));
-  }
-  return container;
+function element(tag, className, text = '') {
+  const node = document.createElement(tag);
+  node.className = className;
+  if (text) node.textContent = text;
+  return node;
 }
 
 export class GameHUD {
   constructor(scene) {
     this.scene = scene;
-    this.container = scene.add.container(0, 0).setDepth(1000);
+    this.overlay = element('div', 'game-hud-overlay');
+    this.status = element('div', 'game-hud-group game-hud-status');
+    this.utility = element('div', 'game-hud-group game-hud-utility');
+    this.dpad = element('div', 'game-hud-group game-hud-dpad');
+    this.spell = element('div', 'game-hud-group game-hud-spell');
+    this.healthFill = null;
+    this.spellNode = null;
+    this.resizeObserver = null;
+
     this.createPlayerStatus();
     this.createUtilityMenu();
     this.createDPad();
     this.createSpellBar();
-    this.createHudFade();
-  }
 
-  createPlayerStatus() {
-    const s = this.scene;
-    const c = s.add.container(12, 12);
+    const container = document.getElementById('game-container');
+    if (!container) throw new Error('Game container not found');
+    container.appendChild(this.overlay);
+    this.updateUnit(container);
+    this.resizeObserver = new ResizeObserver(() => this.updateUnit(container));
+    this.resizeObserver.observe(container);
 
-    c.add(s.add.circle(0, 0, 12, UI.dark, 0.92).setStrokeStyle(1, UI.mauve, 0.8));
-    c.add(s.add.circle(0, 0, 9, 0x15111b, 1).setStrokeStyle(1, UI.violet, 0.45));
-    c.add(s.add.text(0, 1, 'A', {
-      color: '#c9aacd', fontFamily: 'serif', fontSize: '8px', fontStyle: 'italic',
-    }).setOrigin(0.5));
-
-    c.add(s.add.text(17, -8, 'ARABELLA', {
-      color: '#f4f0e7', fontFamily: 'serif', fontSize: '6px', letterSpacing: 1,
-    }));
-
-    this.healthBack = s.add.rectangle(17, 2, 74, 5, UI.dark, 0.9).setOrigin(0, 0.5)
-      .setStrokeStyle(1, UI.mauve, 0.45);
-    this.healthFill = s.add.rectangle(18, 2, 0, 3, UI.red, 0.95).setOrigin(0, 0.5);
-
-    this.manaBack = s.add.rectangle(17, 10, 74, 5, UI.dark, 0.9).setOrigin(0, 0.5)
-      .setStrokeStyle(1, UI.mauve, 0.35);
-    this.manaFill = s.add.rectangle(18, 10, 72, 3, UI.mana, 0.9).setOrigin(0, 0.5);
-
-    this.healthLabel = s.add.text(94, 0, 'HP', {
-      color: '#9d7884', fontFamily: 'monospace', fontSize: '4px',
-    });
-    this.manaLabel = s.add.text(94, 8, 'MP', {
-      color: '#716c94', fontFamily: 'monospace', fontSize: '4px',
-    });
-
-    c.add([
-      this.healthBack, this.healthFill, this.manaBack, this.manaFill,
-      this.healthLabel, this.manaLabel,
-    ]);
-    this.container.add(c);
-  }
-
-  createUtilityMenu() {
-    this.utility = this.scene.add.container(GAME_WIDTH - 17, 14);
-    this.utility.add(stylizedButton(this.scene, -24, 0, 16, '≡'));
-    this.utility.add(stylizedButton(this.scene, 0, 0, 16, '◇'));
-    this.utility.add(stylizedButton(this.scene, 24, 0, 16, '□'));
-    this.container.add(this.utility);
-  }
-
-  createDPad() {
-    const s = this.scene;
-    this.dpad = s.add.container(21, GAME_HEIGHT - 20);
-    this.dpad.add(s.add.circle(0, 0, 16, UI.dark, 0.72).setStrokeStyle(1, UI.mauve, 0.45));
-    this.dpad.add(s.add.rectangle(-7, 0, 14, 5, UI.mauve, 0.78).setStrokeStyle(1, UI.violet, 0.7));
-    this.dpad.add(s.add.text(-7, 0, '‹', {
-      color: '#f4f0e7', fontFamily: 'serif', fontSize: '12px',
-    }).setOrigin(0.5));
-    this.dpad.add(s.add.text(7, 0, '›', {
-      color: '#f4f0e7', fontFamily: 'serif', fontSize: '12px',
-    }).setOrigin(0.5));
-    this.dpad.add(s.add.text(0, 11, 'MOVE', {
-      color: '#716877', fontFamily: 'monospace', fontSize: '3px', letterSpacing: 0.5,
-    }).setOrigin(0.5));
-    this.dpad.setAlpha(0.92);
-    this.container.add(this.dpad);
-  }
-
-  createSpellBar() {
-    const s = this.scene;
-    this.spellBar = s.add.container(GAME_WIDTH - 30, GAME_HEIGHT - 25);
-    this.spell = s.add.container(0, 0);
-    this.spell.add(s.add.circle(0, 0, 14, UI.dark, 0.9).setStrokeStyle(1, UI.mauve, 0.7));
-    this.spell.add(s.add.circle(0, 0, 11, 0x1b1424, 1).setStrokeStyle(1, UI.violet, 0.6));
-    this.spell.add(s.add.text(0, -2, '☽', {
-      color: '#d7c6df', fontFamily: 'serif', fontSize: '10px',
-    }).setOrigin(0.5));
-    this.spell.add(s.add.text(0, 18, 'DARK BOLT', {
-      color: '#a893ad', fontFamily: 'monospace', fontSize: '4px', letterSpacing: 0.5,
-    }).setOrigin(0.5));
-    this.spellBar.add(this.spell);
-    this.container.add(this.spellBar);
-  }
-
-  createHudFade() {
+    this.overlay.style.opacity = '0';
     this.scene.tweens.add({
-      targets: this.container,
-      alpha: { from: 0, to: 1 },
+      targets: this.overlay,
+      alpha: 1,
       duration: 350,
       ease: 'Sine.out',
     });
   }
 
+  updateUnit(container) {
+    const unit = container.clientWidth / GAME_WIDTH;
+    this.overlay.style.setProperty('--game-unit', `${unit}px`);
+    this.overlay.style.setProperty('--hud-scale', HUD_SCALE);
+  }
+
+  createPlayerStatus() {
+    const portrait = element('div', 'game-hud-status__portrait', 'A');
+    const name = element('div', 'game-hud-status__name', 'ARABELLA');
+
+    const health = element('div', 'game-hud-bar game-hud-bar--health');
+    this.healthFill = element('div', 'game-hud-bar__fill game-hud-fill--health');
+    health.appendChild(this.healthFill);
+
+    const mana = element('div', 'game-hud-bar game-hud-bar--mana');
+    const manaFill = element('div', 'game-hud-bar__fill game-hud-fill--mana');
+    mana.appendChild(manaFill);
+
+    const hp = element('div', 'game-hud-label game-hud-label--health', 'HP');
+    const mp = element('div', 'game-hud-label game-hud-label--mana', 'MP');
+    this.status.append(portrait, name, health, mana, hp, mp);
+    this.overlay.appendChild(this.status);
+  }
+
+  createUtilityMenu() {
+    ['≡', '◇', '□'].forEach((glyph) => {
+      this.utility.appendChild(element('div', 'game-hud-button', glyph));
+    });
+    this.overlay.appendChild(this.utility);
+  }
+
+  createDPad() {
+    this.dpad.append(element('span', '', '‹'));
+    this.dpad.append(element('span', '', '›'));
+    this.dpad.append(element('span', 'game-hud-dpad__move', 'MOVE'));
+    this.overlay.appendChild(this.dpad);
+  }
+
+  createSpellBar() {
+    const orb = element('div', 'game-hud-spell__orb', '☽');
+    const label = element('div', 'game-hud-spell__label', 'DARK BOLT');
+    this.spell.append(orb, label);
+    this.spellNode = this.spell;
+    this.overlay.appendChild(this.spell);
+  }
+
   setHealth(value) {
-    const amount = Phaser.Math.Clamp(value, 0, 1);
-    this.scene.tweens.killTweensOf(this.healthFill);
+    const amount = Math.max(0, Math.min(1, Number(value) || 0));
+    const width = 72 * amount;
+    this.healthFill.style.width = `${width}px`;
     this.scene.tweens.add({
       targets: this.healthFill,
-      width: 72 * amount,
+      width: width,
       duration: 120,
       ease: 'Quad.out',
     });
   }
 
   flickerHealth() {
-    this.scene.tweens.add({
-      targets: this.healthFill,
-      alpha: { from: 0.35, to: 1 },
-      duration: 80,
-      yoyo: true,
-      repeat: 3,
-    });
+    this.healthFill.animate(
+      [{ opacity: 0.35 }, { opacity: 1 }, { opacity: 0.35 }, { opacity: 1 }],
+      { duration: 320, iterations: 1 },
+    );
   }
 
   setSpellEnabled(enabled) {
-    this.spell.setAlpha(enabled ? 1 : 0.42);
+    this.spellNode.style.opacity = enabled ? '1' : '0.42';
   }
 
   destroy() {
-    this.container.destroy(true);
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    this.overlay.remove();
   }
 }
