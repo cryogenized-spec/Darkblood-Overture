@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { buildArabellaTexture } from '../pixel/arabellaPixelArt.js';
 
 const DEV_SPLASH_KEY = 'dev-splash-art';
 const TITLE_ART_KEY = 'title-screen-art';
@@ -21,6 +22,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
+    buildArabellaTexture(this);
     this.scene.start('DevSplashScene');
   }
 }
