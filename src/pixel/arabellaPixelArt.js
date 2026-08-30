@@ -220,13 +220,17 @@ export function buildArabellaTexture(scene) {
   ARABELLA_FRAME_NAMES.forEach((name, index) => {
     const textureKey = ARABELLA_TEXTURE_KEYS[name];
     const canvasTexture = scene.textures.createCanvas(textureKey, width, height);
-    const context = canvasTexture.context;
-    context.imageSmoothingEnabled = false;
-    const image = context.createImageData(width, height);
-    image.data.set(createFrame(index));
-    context.putImageData(image, 0, 0);
+    const frameData = createFrame(index);
+    const image = canvasTexture.context.createImageData(width, height);
+    image.data.set(frameData);
+    canvasTexture.putData(image, 0, 0);
     canvasTexture.refresh();
     canvasTexture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+
+    const visiblePixels = frameData.reduce((count, value, offset) => (
+      offset % 4 === 3 && value > 0 ? count + 1 : count
+    ), 0);
+    if (visiblePixels === 0) throw new Error(`Arabella frame '${name}' contains no visible pixels.`);
   });
 
   return scene.textures.get(firstKey);
