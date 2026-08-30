@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
 import { createLevel01Runtime } from '../data/level01.js';
 import { QUEEN } from '../data/queen.js';
+import { buildArabellaTexture } from '../pixel/arabellaPixelArt.js';
 import { ArabellaAwakeningSprite } from '../entities/ArabellaAwakeningSprite.js';
 import { GameHUD } from '../ui/GameHUD.js';
 import { PauseMenu } from '../ui/PauseMenu.js';
@@ -16,6 +17,8 @@ export class AwakeningScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#050507');
     this.registry.set('currentLevel', createLevel01Runtime());
     this.createWorldPlaceholder();
+
+    buildArabellaTexture(this);
 
     this.hud = new GameHUD(this);
     this.hud.setHealth(0);
