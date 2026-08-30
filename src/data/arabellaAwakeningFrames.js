@@ -1,4 +1,4 @@
-export const ARABELLA_SPRITE_DISPLAY_HEIGHT = 112;
+export const ARABELLA_SPRITE_DISPLAY_HEIGHT = 80;
 
 export const ARABELLA_AWAKENING_FRAMES = Object.freeze([
   { name: 'dormant', file: '01-dormant.png' },
