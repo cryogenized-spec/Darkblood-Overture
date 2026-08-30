@@ -70,18 +70,18 @@ export class AwakeningScene extends Phaser.Scene {
   }
 
   runArtworkAwakening() {
-    this.queen.frame('dormant');
-    this.time.delayedCall(320, () => this.queen.frame('shadowStir'));
-    this.time.delayedCall(620, () => this.queen.frame('beginRise'));
-    this.time.delayedCall(940, () => this.queen.frame('firstRise'));
-    this.time.delayedCall(1410, () => this.queen.frame('halfSettle'));
-    this.time.delayedCall(1690, () => this.queen.frame('secondRise'));
-    this.time.delayedCall(2070, () => this.queen.frame('fullStance'));
-    this.time.delayedCall(2470, () => this.queen.frame('settle'));
-    this.time.delayedCall(2840, () => this.queen.frame('headLifting'));
-    this.time.delayedCall(3160, () => this.queen.frame('headUp'));
+    this.queen.setArtworkFrame('dormant');
+    this.time.delayedCall(320, () => this.queen.setArtworkFrame('shadowStir'));
+    this.time.delayedCall(620, () => this.queen.setArtworkFrame('beginRise'));
+    this.time.delayedCall(940, () => this.queen.setArtworkFrame('firstRise'));
+    this.time.delayedCall(1410, () => this.queen.setArtworkFrame('halfSettle'));
+    this.time.delayedCall(1690, () => this.queen.setArtworkFrame('secondRise'));
+    this.time.delayedCall(2070, () => this.queen.setArtworkFrame('fullStance'));
+    this.time.delayedCall(2470, () => this.queen.setArtworkFrame('settle'));
+    this.time.delayedCall(2840, () => this.queen.setArtworkFrame('headLifting'));
+    this.time.delayedCall(3160, () => this.queen.setArtworkFrame('headUp'));
     this.time.delayedCall(3490, () => {
-      this.queen.frame('eyesAwaken');
+      this.queen.setArtworkFrame('eyesAwaken');
       this.createLunarCharge();
     });
   }
@@ -112,7 +112,7 @@ export class AwakeningScene extends Phaser.Scene {
   }
 
   finishAwakening(chargeText) {
-    this.queen.frame('conscious');
+    this.queen.setArtworkFrame('conscious');
     this.queen.setLunarCharge(false);
     this.hud.setSpellEnabled(true);
     this.tweens.add({ targets: chargeText, alpha: 0, duration: 260, onComplete: () => chargeText.destroy() });
