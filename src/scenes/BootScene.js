@@ -4,6 +4,11 @@ import {
   ARABELLA_SPRITE_PATH,
   ARABELLA_TEXTURE_KEYS,
 } from '../data/arabellaAwakeningFrames.js';
+import {
+  ARABELLA_RUN_FRAMES,
+  ARABELLA_RUN_SPRITE_PATH,
+  ARABELLA_RUN_TEXTURE_KEYS,
+} from '../data/arabellaRunFrames.js';
 
 const DEV_SPLASH_KEY = 'dev-splash-art';
 const TITLE_ART_KEY = 'title-screen-art';
@@ -27,20 +32,24 @@ export class BootScene extends Phaser.Scene {
     ARABELLA_AWAKENING_FRAMES.forEach(({ name, file }) => {
       this.load.image(ARABELLA_TEXTURE_KEYS[name], `${ARABELLA_SPRITE_PATH}${file}`);
     });
+
+    ARABELLA_RUN_FRAMES.forEach(({ name, file }) => {
+      this.load.image(ARABELLA_RUN_TEXTURE_KEYS[name], `${ARABELLA_RUN_SPRITE_PATH}${file}`);
+    });
   }
 
   create() {
-    ARABELLA_AWAKENING_FRAMES.forEach(({ name }) => {
-      const texture = this.textures.get(ARABELLA_TEXTURE_KEYS[name]);
-      if (!texture) throw new Error(`Missing loaded Arabella texture '${name}'.`);
-
-      const source = texture.getSourceImage();
-      if (!source || source.width <= 0 || source.height <= 0) {
-        throw new Error(`Arabella frame '${name}' has invalid source dimensions.`);
-      }
-
-      texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
-    });
+    [...ARABELLA_AWAKENING_FRAMES.map(({ name }) => ARABELLA_TEXTURE_KEYS[name]),
+      ...ARABELLA_RUN_FRAMES.map(({ name }) => ARABELLA_RUN_TEXTURE_KEYS[name])]
+      .forEach((textureKey) => {
+        const texture = this.textures.get(textureKey);
+        if (!texture) throw new Error(`Missing loaded Arabella texture '${textureKey}'.`);
+        const source = texture.getSourceImage();
+        if (!source || source.width <= 0 || source.height <= 0) {
+          throw new Error(`Arabella texture '${textureKey}' has invalid source dimensions.`);
+        }
+        texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+      });
 
     this.scene.start('DevSplashScene');
   }
