@@ -41,7 +41,7 @@ export class AwakeningScene extends Phaser.Scene {
   }
 
   createQueenSprite() {
-    this.queen = new ArabellaAwakeningSprite(this, GAME_WIDTH / 2, 170);
+    this.queen = ArabellaAwakeningSprite.create(this, GAME_WIDTH / 2, 170);
   }
 
   runQueenEntrance() {
