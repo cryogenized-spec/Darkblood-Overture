@@ -15,8 +15,8 @@ const config = {
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   backgroundColor: '#050507',
-  pixelArt: true,
-  roundPixels: true,
+  pixelArt: false,
+  roundPixels: false,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
