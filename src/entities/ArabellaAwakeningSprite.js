@@ -8,12 +8,11 @@ import {
 export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     const textureKey = ARABELLA_TEXTURE_KEYS.dormant;
-    const texture = scene.textures.get(textureKey);
-    if (!texture) {
+    if (!scene.textures.exists(textureKey)) {
       throw new Error(`Arabella texture '${textureKey}' was not prepared before AwakeningScene.`);
     }
 
-    super(scene, x, y, texture);
+    super(scene, x, y, textureKey);
     scene.add.existing(this);
     this.setOrigin(0.5, 1);
     this.setDepth(20);
@@ -26,9 +25,10 @@ export class ArabellaAwakeningSprite extends Phaser.GameObjects.Sprite {
   frame(name) {
     const textureKey = ARABELLA_TEXTURE_KEYS[name];
     if (textureKey) {
-      const texture = this.scene.textures.get(textureKey);
-      if (!texture) throw new Error(`Arabella texture '${textureKey}' is missing.`);
-      this.setTexture(texture);
+      if (!this.scene.textures.exists(textureKey)) {
+        throw new Error(`Arabella texture '${textureKey}' is missing.`);
+      }
+      this.setTexture(textureKey);
       this.setVisible(true);
     }
   }
