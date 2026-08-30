@@ -1,6 +1,6 @@
 export const ARABELLA_SPRITE_SIZE = Object.freeze({
-  width: 128,
-  height: 160,
+  width: 96,
+  height: 112,
 });
 
 export const ARABELLA_AWAKENING_FRAMES = Object.freeze([
