@@ -6,9 +6,9 @@ export const LEVEL_01 = {
     width: 1600,
   },
   art: {
-    far: 'procedural-graveyard-far',
-    mid: 'procedural-graveyard-mid',
-    near: 'procedural-graveyard-near',
+    far: 'level01-background-far',
+    mid: 'level01-background-mid',
+    near: 'level01-background-near',
     parallax: {
       far: 0.12,
       mid: 0.36,
