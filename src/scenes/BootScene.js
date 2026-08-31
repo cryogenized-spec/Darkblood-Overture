@@ -88,8 +88,6 @@ export class BootScene extends Phaser.Scene {
       if (!source || source.width <= 0 || source.height <= 0) {
         throw new Error(`Texture '${textureKey}' has invalid source dimensions.`);
       }
-      // Keep browser-native/linear sampling globally; the source artwork already
-      // contains its deliberate pixel treatment.
       texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
     });
 
