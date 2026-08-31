@@ -3,6 +3,7 @@ import './GameHUD.css';
 
 const HUD_SCALE = 0.65;
 const HEALTH_FILL_WIDTH = 72;
+const XP_BAR_WIDTH = 118;
 
 function element(tag, className, text = '') {
   const node = document.createElement(tag);
@@ -57,7 +58,12 @@ export class GameHUD {
     this.dpad = element('div', 'game-hud-group game-hud-dpad');
     this.jump = element('div', 'game-hud-group game-hud-jump');
     this.spell = element('div', 'game-hud-group game-hud-spell');
+    this.xp = element('div', 'game-hud-group game-hud-xp');
     this.healthFill = null;
+    this.manaFill = null;
+    this.xpFill = null;
+    this.levelNode = null;
+    this.manaValueNode = null;
     this.spellNode = null;
     this.jumpNode = null;
     this.resizeObserver = null;
@@ -70,6 +76,7 @@ export class GameHUD {
     this.createDPad();
     this.createJumpButton();
     this.createSpellBar();
+    this.createXpBar();
 
     const container = document.getElementById('game-container');
     if (!container) throw new Error('Game container not found');
@@ -89,16 +96,18 @@ export class GameHUD {
 
   createPlayerStatus() {
     const portrait = element('div', 'game-hud-status__portrait', 'A');
+    this.levelNode = element('div', 'game-hud-status__level', 'LV 0');
     const name = element('div', 'game-hud-status__name', 'ARABELLA');
     const health = element('div', 'game-hud-bar game-hud-bar--health');
     this.healthFill = element('div', 'game-hud-bar__fill game-hud-fill--health');
     health.appendChild(this.healthFill);
     const mana = element('div', 'game-hud-bar game-hud-bar--mana');
-    const manaFill = element('div', 'game-hud-bar__fill game-hud-fill--mana');
-    mana.appendChild(manaFill);
+    this.manaFill = element('div', 'game-hud-bar__fill game-hud-fill--mana');
+    mana.appendChild(this.manaFill);
+    this.manaValueNode = element('div', 'game-hud-mana-value', '50 / 50');
     const hp = element('div', 'game-hud-label game-hud-label--health', 'HP');
     const mp = element('div', 'game-hud-label game-hud-label--mana', 'MP');
-    this.status.append(portrait, name, health, mana, hp, mp);
+    this.status.append(portrait, this.levelNode, name, health, mana, this.manaValueNode, hp, mp);
     this.overlay.appendChild(this.status);
   }
 
@@ -141,8 +150,10 @@ export class GameHUD {
   createSpellBar() {
     const orb = element('button', 'game-hud-spell__orb', '☽');
     const label = element('div', 'game-hud-spell__label', 'DARK BOLT');
+    const cooldown = element('span', 'game-hud-spell__cooldown');
     orb.type = 'button';
     orb.setAttribute('aria-label', 'Dark Bolt');
+    orb.appendChild(cooldown);
     this.onSpellPointer = (event) => {
       event.preventDefault();
       emitSpell('darkBolt');
@@ -150,13 +161,49 @@ export class GameHUD {
     orb.addEventListener('pointerdown', this.onSpellPointer);
     this.spell.append(orb, label);
     this.spellNode = this.spell;
+    this.spellButton = orb;
+    this.spellCooldown = cooldown;
     this.overlay.appendChild(this.spell);
+  }
+
+  createXpBar() {
+    const label = element('span', 'game-hud-xp__label', 'XP');
+    const bar = element('div', 'game-hud-xp__bar');
+    this.xpFill = element('div', 'game-hud-xp__fill');
+    bar.appendChild(this.xpFill);
+    this.xp.append(label, bar);
+    this.overlay.appendChild(this.xp);
   }
 
   setHealth(value) {
     const amount = Math.max(0, Math.min(1, Number(value) || 0));
-    const logicalWidth = HEALTH_FILL_WIDTH * amount;
-    this.healthFill.style.width = `calc(var(--game-unit) * ${logicalWidth})`;
+    this.healthFill.style.width = `calc(var(--game-unit) * ${HEALTH_FILL_WIDTH * amount})`;
+  }
+
+  setMana(mana, maxMana) {
+    const max = Math.max(1, Number(maxMana) || 1);
+    const current = Math.max(0, Math.min(max, Number(mana) || 0));
+    this.manaFill.style.width = `calc(var(--game-unit) * ${46.8 * (current / max)})`;
+    this.manaValueNode.textContent = `${current.toFixed(1).replace(/\.0$/, '')} / ${max}`;
+  }
+
+  setLevel(level) {
+    this.levelNode.textContent = `LV ${Math.max(0, Math.floor(Number(level) || 0))}`;
+  }
+
+  setXp(xpPercent, level) {
+    const amount = Math.max(0, Math.min(1, Number(xpPercent) || 0));
+    this.xpFill.style.width = `calc(var(--game-unit) * ${XP_BAR_WIDTH * amount})`;
+    this.setLevel(level);
+  }
+
+  setSpellCooldown(remainingMs, totalMs) {
+    const remaining = Math.max(0, Number(remainingMs) || 0);
+    const total = Math.max(1, Number(totalMs) || 1);
+    const progress = Math.max(0, Math.min(1, remaining / total));
+    this.spellCooldown.style.setProperty('--cooldown-progress', progress);
+    this.spellNode.classList.toggle('is-cooling-down', remaining > 0);
+    this.spellButton.disabled = remaining > 0;
   }
 
   flickerHealth() {
@@ -168,6 +215,7 @@ export class GameHUD {
 
   setSpellEnabled(enabled) {
     this.spellNode.style.opacity = enabled ? '1' : '0.42';
+    this.spellButton.disabled = !enabled;
   }
 
   destroy() {
