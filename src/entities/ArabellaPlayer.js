@@ -4,6 +4,8 @@ import { ArabellaRunSprite } from './ArabellaRunSprite.js';
 
 const CAST_HAND_OFFSET_X = 18;
 const CAST_HAND_OFFSET_Y = -30;
+const JUMP_VELOCITY = -110;
+const GRAVITY = 300;
 
 export class ArabellaPlayer {
   static create(scene, x, y) {
@@ -19,6 +21,9 @@ export class ArabellaPlayer {
     container.moving = false;
     container.casting = false;
     container.castReleased = false;
+    container.groundY = y;
+    container.verticalVelocity = 0;
+    container.jumping = false;
     container.worldLeft = 32;
     container.worldRight = 1280;
     container.idleSprite = idle;
@@ -59,6 +64,24 @@ export class ArabellaPlayer {
       idle.frameTimer = 0;
       idle.setArtworkFrame('neutral');
       idle.setVisible(true);
+    };
+
+    container.jump = () => {
+      if (container.casting || container.jumping) return false;
+      container.jumping = true;
+      container.verticalVelocity = JUMP_VELOCITY;
+      return true;
+    };
+
+    container.updatePhysics = (deltaSeconds) => {
+      if (!container.jumping) return;
+      container.verticalVelocity += GRAVITY * deltaSeconds;
+      container.y += container.verticalVelocity * deltaSeconds;
+      if (container.y >= container.groundY) {
+        container.y = container.groundY;
+        container.verticalVelocity = 0;
+        container.jumping = false;
+      }
     };
 
     container.castDarkBolt = () => {
