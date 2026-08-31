@@ -8,6 +8,77 @@ import {
   DARK_BOLT_PROJECTILE_TEXTURE_KEYS,
 } from '../data/darkBoltFrames.js';
 
+function getVisibleBounds(source) {
+  const ownerDocument = source.ownerDocument;
+  if (!ownerDocument) throw new Error('Dark Bolt projectile source does not expose a document.');
+
+  const canvas = ownerDocument.createElement('canvas');
+  canvas.width = source.width || source.naturalWidth;
+  canvas.height = source.height || source.naturalHeight;
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  if (!context) throw new Error('Unable to create a canvas context for Dark Bolt cropping.');
+
+  context.drawImage(source, 0, 0);
+  const { width, height } = canvas;
+  const pixels = context.getImageData(0, 0, width, height).data;
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const alpha = pixels[(y * width + x) * 4 + 3];
+      if (alpha <= 8) continue;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+
+  if (maxX < minX || maxY < minY) {
+    throw new Error('Dark Bolt projectile contains no visible pixels.');
+  }
+
+  return {
+    source,
+    x: minX,
+    y: minY,
+    width: maxX - minX + 1,
+    height: maxY - minY + 1,
+  };
+}
+
+function getCroppedTexture(scene, sourceKey) {
+  const croppedKey = `${sourceKey}-cropped`;
+  if (scene.textures.exists(croppedKey)) return croppedKey;
+
+  const source = scene.textures.get(sourceKey).getSourceImage();
+  if (!source) throw new Error(`Dark Bolt projectile texture '${sourceKey}' has no source image.`);
+  const bounds = getVisibleBounds(source);
+  const ownerDocument = source.ownerDocument;
+  const canvas = ownerDocument.createElement('canvas');
+  canvas.width = bounds.width;
+  canvas.height = bounds.height;
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Unable to create a cropped Dark Bolt canvas.');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(
+    bounds.source,
+    bounds.x,
+    bounds.y,
+    bounds.width,
+    bounds.height,
+    0,
+    0,
+    bounds.width,
+    bounds.height,
+  );
+  scene.textures.addCanvas(croppedKey, canvas);
+  return croppedKey;
+}
+
 export class DarkBoltProjectile {
   static create(scene, x, y, direction = 1) {
     const firstKey = DARK_BOLT_PROJECTILE_TEXTURE_KEYS.flightA;
@@ -15,7 +86,8 @@ export class DarkBoltProjectile {
       throw new Error(`Dark Bolt projectile texture '${firstKey}' was not loaded before GameScene.`);
     }
 
-    const sprite = scene.add.sprite(x, y, firstKey);
+    const firstCroppedKey = getCroppedTexture(scene, firstKey);
+    const sprite = scene.add.sprite(x, y, firstCroppedKey);
     sprite.setOrigin(0.5, 0.5);
     sprite.setDepth(19);
     sprite.setVisible(true);
@@ -45,7 +117,7 @@ export class DarkBoltProjectile {
       if (!scene.textures.exists(nextKey)) {
         throw new Error(`Dark Bolt projectile texture '${name}' is missing.`);
       }
-      sprite.setTexture(nextKey);
+      sprite.setTexture(getCroppedTexture(scene, nextKey));
       sprite.setFlipX(sprite.direction < 0);
       applyFrameScale();
     };
