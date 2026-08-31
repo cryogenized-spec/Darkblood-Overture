@@ -12,7 +12,7 @@ export const DARK_BOLT_CAST_TEXTURE_KEYS = Object.freeze(
 );
 export const DARK_BOLT_CAST_SPRITE_PATH = `${import.meta.env.BASE_URL}assets/sprites/characters/arabella/cast-dark-bolt/`;
 
-export const DARK_BOLT_PROJECTILE_DISPLAY_HEIGHT = 28;
+export const DARK_BOLT_PROJECTILE_DISPLAY_HEIGHT = 48;
 export const DARK_BOLT_PROJECTILE_DISPLAY_WIDTH_SCALE = 1.25;
 export const DARK_BOLT_PROJECTILE_FRAME_MS = 70;
 export const DARK_BOLT_PROJECTILE_SPEED = 225;
