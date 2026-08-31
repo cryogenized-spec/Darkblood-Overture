@@ -23,6 +23,6 @@ export const GAME_CONFIG = {
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   backgroundColor: '#050507',
-  pixelArt: true,
-  roundPixels: true,
+  pixelArt: false,
+  roundPixels: false,
 };
