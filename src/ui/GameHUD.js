@@ -23,6 +23,10 @@ function emitSpell(spell) {
   }));
 }
 
+function emitJump() {
+  document.dispatchEvent(new window.CustomEvent('darkblood:jump'));
+}
+
 function bindDpadButton(button, direction) {
   const press = (event) => {
     event.preventDefault();
@@ -51,16 +55,20 @@ export class GameHUD {
     this.status = element('div', 'game-hud-group game-hud-status');
     this.utility = element('div', 'game-hud-group game-hud-utility');
     this.dpad = element('div', 'game-hud-group game-hud-dpad');
+    this.jump = element('div', 'game-hud-group game-hud-jump');
     this.spell = element('div', 'game-hud-group game-hud-spell');
     this.healthFill = null;
     this.spellNode = null;
+    this.jumpNode = null;
     this.resizeObserver = null;
     this.dpadCleanup = [];
     this.onSpellPointer = null;
+    this.onJumpPointer = null;
 
     this.createPlayerStatus();
     this.createUtilityMenu();
     this.createDPad();
+    this.createJumpButton();
     this.createSpellBar();
 
     const container = document.getElementById('game-container');
@@ -115,6 +123,20 @@ export class GameHUD {
     this.dpadCleanup.push(bindDpadButton(right, 'right'));
   }
 
+  createJumpButton() {
+    const button = element('button', 'game-hud-jump__button', '↑');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Jump');
+    this.onJumpPointer = (event) => {
+      event.preventDefault();
+      emitJump();
+    };
+    button.addEventListener('pointerdown', this.onJumpPointer);
+    this.jumpNode = button;
+    this.jump.appendChild(button);
+    this.overlay.appendChild(this.jump);
+  }
+
   createSpellBar() {
     const orb = element('button', 'game-hud-spell__orb', '☽');
     const label = element('div', 'game-hud-spell__label', 'DARK BOLT');
@@ -153,6 +175,10 @@ export class GameHUD {
     if (this.onSpellPointer) {
       this.spellNode?.querySelector('.game-hud-spell__orb')?.removeEventListener('pointerdown', this.onSpellPointer);
       this.onSpellPointer = null;
+    }
+    if (this.onJumpPointer) {
+      this.jumpNode?.removeEventListener('pointerdown', this.onJumpPointer);
+      this.onJumpPointer = null;
     }
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
