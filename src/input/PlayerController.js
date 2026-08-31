@@ -6,6 +6,7 @@ const KEY_TO_DIRECTION = Object.freeze({
   ArrowRight: 'right',
   KeyD: 'right',
 });
+const JUMP_KEYS = new Set(['ArrowUp', 'KeyW', 'KeyX']);
 
 export class PlayerController {
   constructor(scene, speed = 70) {
@@ -15,9 +16,13 @@ export class PlayerController {
     this.keys = new Set();
     this.onKeyDown = (event) => {
       const direction = KEY_TO_DIRECTION[event.code];
-      if (!direction) return;
-      this.keys.add(direction);
-      this.recalculateAxis();
+      if (direction) {
+        this.keys.add(direction);
+        this.recalculateAxis();
+      }
+      if (JUMP_KEYS.has(event.code) && !event.repeat) {
+        scene.events.emit('darkblood:jump');
+      }
     };
     this.onKeyUp = (event) => {
       const direction = KEY_TO_DIRECTION[event.code];
