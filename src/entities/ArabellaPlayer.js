@@ -7,7 +7,7 @@ import {
 } from '../data/darkBoltFrames.js';
 
 const CAST_HAND_OFFSET_X = 20;
-const CAST_HAND_OFFSET_Y = -40;
+const CAST_HAND_OFFSET_Y = -46;
 const JUMP_VELOCITY = -110;
 const GRAVITY = 300;
 const INITIAL_MAX_MANA = 50;
