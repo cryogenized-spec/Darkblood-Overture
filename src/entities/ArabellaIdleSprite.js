@@ -4,7 +4,7 @@ import {
   ARABELLA_IDLE_TEXTURE_KEYS,
 } from '../data/arabellaIdleFrames.js';
 
-const IDLE_FRAME_MS = 180;
+const IDLE_FRAME_MS = 540;
 
 export class ArabellaIdleSprite {
   static create(scene, x, y) {
