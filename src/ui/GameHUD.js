@@ -118,6 +118,7 @@ export class GameHUD {
     left.setAttribute('aria-label', 'Move left');
     right.setAttribute('aria-label', 'Move right');
     this.dpad.append(left, right, label);
+    this.jumpNode = null;
     this.overlay.appendChild(this.dpad);
     this.dpadCleanup.push(bindDpadButton(left, 'left'));
     this.dpadCleanup.push(bindDpadButton(right, 'right'));
@@ -134,7 +135,7 @@ export class GameHUD {
     button.addEventListener('pointerdown', this.onJumpPointer);
     this.jumpNode = button;
     this.jump.appendChild(button);
-    this.overlay.appendChild(this.jump);
+    this.dpad.appendChild(this.jump);
   }
 
   createSpellBar() {
