@@ -18,6 +18,9 @@ const config = {
   pixelArt: false,
   roundPixels: false,
   resolution: Math.min(window.devicePixelRatio || 1, 3),
+  render: {
+    antialias: true,
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
