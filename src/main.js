@@ -17,6 +17,7 @@ const config = {
   backgroundColor: '#050507',
   pixelArt: false,
   roundPixels: false,
+  resolution: Math.min(window.devicePixelRatio || 1, 3),
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
