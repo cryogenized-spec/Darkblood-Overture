@@ -32,12 +32,8 @@ export class TitleScene extends Phaser.Scene {
     this.acceptingInput = false;
     hideTitlePrompt();
 
-    const cam = this.cameras.main;
-    cam.fadeOut(160, 0, 0, 0);
-    this.time.delayedCall(230, () => cam.fadeIn(160, 0, 0, 0));
-    this.time.delayedCall(600, () => cam.fadeOut(180, 0, 0, 0));
-    this.time.delayedCall(860, () => cam.fadeIn(180, 0, 0, 0));
-    this.time.delayedCall(1160, () => cam.fadeOut(520, 0, 0, 0));
-    this.time.delayedCall(1720, () => this.scene.start('AwakeningScene'));
+    this.cameras.main.fadeOut(900, 0, 0, 0, (_camera, progress) => {
+      if (progress >= 1) this.scene.start('AwakeningScene');
+    });
   }
 }
