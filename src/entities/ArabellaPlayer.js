@@ -7,7 +7,7 @@ import {
 } from '../data/darkBoltFrames.js';
 
 const CAST_HAND_OFFSET_X = 20;
-const CAST_HAND_OFFSET_Y = -46;
+const CAST_HAND_OFFSET_Y = -66;
 const JUMP_VELOCITY = -110;
 const GRAVITY = 300;
 const INITIAL_MAX_MANA = 50;
@@ -156,12 +156,12 @@ export class ArabellaPlayer {
         const result = cast.updateCast(deltaMs);
         if (result.released && !container.castReleased) {
           container.castReleased = true;
+        }
+        if (result.done) {
           const direction = container.facing === 'left' ? -1 : 1;
           const projectileX = container.x + direction * CAST_HAND_OFFSET_X;
           const projectileY = container.y + CAST_HAND_OFFSET_Y;
           scene.spawnDarkBolt?.(projectileX, projectileY, direction);
-        }
-        if (result.done) {
           container.casting = false;
           container.castReleased = false;
           cast.setVisible(false);
