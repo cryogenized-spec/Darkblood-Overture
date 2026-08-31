@@ -4,6 +4,8 @@ import {
   ARABELLA_TEXTURE_KEYS,
 } from '../data/arabellaAwakeningFrames.js';
 
+const AWAKENING_VISUAL_OFFSET_Y = -5;
+
 export class ArabellaAwakeningSprite {
   static create(scene, x, y) {
     const textureKey = ARABELLA_TEXTURE_KEYS.dormant;
@@ -11,7 +13,7 @@ export class ArabellaAwakeningSprite {
       throw new Error(`Arabella texture '${textureKey}' was not loaded before AwakeningScene.`);
     }
 
-    const sprite = scene.add.sprite(x, y, textureKey);
+    const sprite = scene.add.sprite(x, y + AWAKENING_VISUAL_OFFSET_Y, textureKey);
     sprite.setOrigin(0.5, 1);
     sprite.setDepth(20);
     sprite.setVisible(true);
