@@ -8,8 +8,8 @@ import { PauseMenu } from '../ui/PauseMenu.js';
 import { createGraveyardBackdrop } from '../world/GraveyardBackdrop.js';
 import { createGroundSurface } from '../world/GroundSurface.js';
 
-const FRAME_INTERVAL_MS = 300;
-const FINAL_FRAME_INTERVAL_MS = 480;
+const FRAME_INTERVAL_MS = 400;
+const FINAL_FRAME_INTERVAL_MS = 640;
 const AWAKENING_FRAME_TIMELINE = Object.freeze([
   ['dormant', 0],
   ['shadowStir', FRAME_INTERVAL_MS],
@@ -26,10 +26,11 @@ const AWAKENING_FRAME_TIMELINE = Object.freeze([
   ['conscious', FRAME_INTERVAL_MS * 9 + FINAL_FRAME_INTERVAL_MS * 3],
 ]);
 
-const FAR_FADE_START_MS = 150;
+const FAR_FADE_START_MS = 0;
 const MID_FADE_START_MS = FRAME_INTERVAL_MS * 4;
 const NEAR_FADE_START_MS = FRAME_INTERVAL_MS * 8;
 const AWAKENING_TOTAL_MS = FRAME_INTERVAL_MS * 9 + FINAL_FRAME_INTERVAL_MS * 3;
+const QUEEN_SPAWN_X = GAME_WIDTH / 2;
 
 export class AwakeningScene extends Phaser.Scene {
   constructor() {
@@ -39,8 +40,9 @@ export class AwakeningScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#050507');
-    this.registry.set('currentLevel', createLevel01Runtime());
-    this.createAwakeningBackdrop();
+    const level = createLevel01Runtime();
+    this.registry.set('currentLevel', level);
+    this.createAwakeningBackdrop(level);
 
     this.hud = new GameHUD(this);
     this.hud.setHealth(0);
@@ -55,13 +57,12 @@ export class AwakeningScene extends Phaser.Scene {
       this.hud?.destroy();
     });
 
-    this.runQueenEntrance();
+    this.runQueenEntrance(level);
   }
 
-  createAwakeningBackdrop() {
+  createAwakeningBackdrop(level) {
     this.backdrop = createGraveyardBackdrop(this);
     Object.values(this.backdrop.layers).forEach((layer) => layer.setAlpha(0));
-    const level = this.registry.get('currentLevel');
     this.groundSurface = createGroundSurface(this, level.world.width, level.ground.y, level.ground.height);
     this.groundSurface.setAlpha(0);
 
@@ -69,7 +70,7 @@ export class AwakeningScene extends Phaser.Scene {
       targets: this.backdrop.layers.far,
       alpha: 1,
       delay: FAR_FADE_START_MS,
-      duration: MID_FADE_START_MS - FAR_FADE_START_MS,
+      duration: MID_FADE_START_MS,
       ease: 'Sine.out',
     });
     this.tweens.add({
@@ -88,25 +89,17 @@ export class AwakeningScene extends Phaser.Scene {
     });
   }
 
-  createQueenSprite() {
-    this.queen = ArabellaAwakeningSprite.create(this, GAME_WIDTH / 2, 170);
+  createQueenSprite(level) {
+    this.queen = ArabellaAwakeningSprite.create(this, QUEEN_SPAWN_X, level.ground.y);
   }
 
-  runQueenEntrance() {
-    this.createQueenSprite();
+  runQueenEntrance(level) {
+    this.createQueenSprite(level);
     this.queen.setAlpha(0);
-    const black = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 1).setDepth(900);
-
-    this.tweens.add({ targets: black, alpha: 0, duration: FAR_FADE_START_MS + 200, ease: 'Sine.out' });
-    this.time.delayedCall(FAR_FADE_START_MS + 220, () => black.destroy());
-
-    this.time.delayedCall(350, () => {
-      if (!this.queen?.active || !this.scene.isActive('AwakeningScene')) return;
-      this.queen.setDepth(20);
-      this.queen.setVisible(true);
-      this.tweens.add({ targets: this.queen, alpha: 1, duration: 260, ease: 'Sine.out' });
-      this.runArtworkAwakening();
-    });
+    this.queen.setDepth(20);
+    this.queen.setVisible(true);
+    this.tweens.add({ targets: this.queen, alpha: 1, duration: 300, ease: 'Sine.out' });
+    this.runArtworkAwakening();
   }
 
   runArtworkAwakening() {
