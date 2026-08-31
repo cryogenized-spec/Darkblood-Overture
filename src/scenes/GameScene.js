@@ -74,6 +74,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   spawnDarkBolt(x, y, direction) {
+    const flash = this.add.circle(x, y, 5, 0xe8d7ef, 0.95)
+      .setDepth(21)
+      .setScale(0.7);
+    this.tweens.add({
+      targets: flash,
+      scale: 2.2,
+      alpha: 0,
+      duration: 90,
+      ease: 'Cubic.out',
+      onComplete: () => flash.destroy(),
+    });
+
     const projectile = DarkBoltProjectile.create(this, x, y, direction);
     this.projectiles.add(projectile);
   }
