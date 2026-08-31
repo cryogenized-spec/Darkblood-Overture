@@ -1,11 +1,21 @@
 import { ArabellaDarkBoltCastSprite } from './ArabellaDarkBoltCastSprite.js';
 import { ArabellaIdleSprite } from './ArabellaIdleSprite.js';
 import { ArabellaRunSprite } from './ArabellaRunSprite.js';
+import {
+  DARK_BOLT_COOLDOWN_MS,
+  DARK_BOLT_MANA_COST,
+} from '../data/darkBoltFrames.js';
 
 const CAST_HAND_OFFSET_X = 18;
 const CAST_HAND_OFFSET_Y = -30;
 const JUMP_VELOCITY = -110;
 const GRAVITY = 300;
+const INITIAL_MAX_MANA = 50;
+const INITIAL_MANA = 50;
+const MANA_REGEN_PER_SECOND = DARK_BOLT_MANA_COST / 4;
+const INITIAL_LEVEL = 0;
+const INITIAL_XP = 0;
+const XP_TO_NEXT_LEVEL = 100;
 
 export class ArabellaPlayer {
   static create(scene, x, y) {
@@ -29,6 +39,13 @@ export class ArabellaPlayer {
     container.idleSprite = idle;
     container.runSprite = run;
     container.castSprite = cast;
+    container.maxMana = INITIAL_MAX_MANA;
+    container.mana = INITIAL_MANA;
+    container.manaRegenPerSecond = MANA_REGEN_PER_SECOND;
+    container.level = INITIAL_LEVEL;
+    container.xp = INITIAL_XP;
+    container.xpToNextLevel = XP_TO_NEXT_LEVEL;
+    container.darkBoltCooldownMs = 0;
 
     idle.setVisible(true);
     run.setVisible(false);
@@ -42,7 +59,7 @@ export class ArabellaPlayer {
     };
 
     container.startRun = () => {
-      if (container.casting || container.moving) return;
+      if (container.casting || container.moving || container.jumping) return;
       container.moving = true;
       idle.setVisible(false);
       cast.setVisible(false);
@@ -84,11 +101,44 @@ export class ArabellaPlayer {
       }
     };
 
+    container.canCastDarkBolt = () => (
+      !container.casting
+      && container.darkBoltCooldownMs <= 0
+      && container.mana >= DARK_BOLT_MANA_COST
+      && scene.sys.isActive()
+    );
+
+    container.getManaPercent = () => (
+      container.maxMana > 0 ? container.mana / container.maxMana : 0
+    );
+
+    container.getXpPercent = () => (
+      container.xpToNextLevel > 0 ? container.xp / container.xpToNextLevel : 0
+    );
+
+    container.addXp = (amount) => {
+      let remaining = Math.max(0, Number(amount) || 0);
+      while (remaining > 0) {
+        const needed = container.xpToNextLevel - container.xp;
+        if (remaining < needed) {
+          container.xp += remaining;
+          remaining = 0;
+        } else {
+          remaining -= needed;
+          container.xp = 0;
+          container.level += 1;
+          container.xpToNextLevel = Math.max(100, Math.round(container.xpToNextLevel * 1.25));
+        }
+      }
+    };
+
     container.castDarkBolt = () => {
-      if (container.casting || !scene.sys.isActive()) return false;
+      if (!container.canCastDarkBolt()) return false;
       container.casting = true;
       container.moving = false;
       container.castReleased = false;
+      container.darkBoltCooldownMs = DARK_BOLT_COOLDOWN_MS;
+      container.mana = Math.max(0, container.mana - DARK_BOLT_MANA_COST);
       idle.setVisible(false);
       run.setVisible(false);
       run.stopRun();
@@ -99,6 +149,9 @@ export class ArabellaPlayer {
     };
 
     container.updateAnimations = (deltaMs) => {
+      container.darkBoltCooldownMs = Math.max(0, container.darkBoltCooldownMs - deltaMs);
+      container.mana = Math.min(container.maxMana, container.mana + container.manaRegenPerSecond * (deltaMs / 1000));
+
       if (container.casting) {
         const result = cast.updateCast(deltaMs);
         if (result.released && !container.castReleased) {
