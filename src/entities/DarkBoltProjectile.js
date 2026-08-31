@@ -1,5 +1,6 @@
 import {
   DARK_BOLT_PROJECTILE_DISPLAY_HEIGHT,
+  DARK_BOLT_PROJECTILE_DISPLAY_WIDTH_SCALE,
   DARK_BOLT_PROJECTILE_FRAME_MS,
   DARK_BOLT_PROJECTILE_MAX_LIFETIME_MS,
   DARK_BOLT_PROJECTILE_SPEED,
@@ -25,6 +26,7 @@ export class DarkBoltProjectile {
     sprite.lifetimeMs = 0;
     sprite.sequenceIndex = 0;
     sprite.baseHeight = DARK_BOLT_PROJECTILE_DISPLAY_HEIGHT;
+    sprite.widthScale = DARK_BOLT_PROJECTILE_DISPLAY_WIDTH_SCALE;
     sprite.setFlipX(sprite.direction < 0);
 
     const applyFrameScale = () => {
@@ -32,7 +34,8 @@ export class DarkBoltProjectile {
       if (!source || source.height <= 0) {
         throw new Error('Dark Bolt projectile texture has invalid source dimensions.');
       }
-      sprite.setScale(sprite.baseHeight / source.height);
+      const scale = sprite.baseHeight / source.height;
+      sprite.setScale(scale * sprite.widthScale, scale);
     };
 
     sprite.setArtworkFrame = (name) => {
