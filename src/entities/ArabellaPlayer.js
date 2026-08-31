@@ -6,8 +6,8 @@ import {
   DARK_BOLT_MANA_COST,
 } from '../data/darkBoltFrames.js';
 
-const CAST_HAND_OFFSET_X = 18;
-const CAST_HAND_OFFSET_Y = -30;
+const CAST_HAND_OFFSET_X = 20;
+const CAST_HAND_OFFSET_Y = -40;
 const JUMP_VELOCITY = -110;
 const GRAVITY = 300;
 const INITIAL_MAX_MANA = 50;
