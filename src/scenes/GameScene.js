@@ -8,6 +8,7 @@ import { GameHUD } from '../ui/GameHUD.js';
 import { PauseMenu } from '../ui/PauseMenu.js';
 import { PlayerController } from '../input/PlayerController.js';
 import { createGraveyardBackdrop } from '../world/GraveyardBackdrop.js';
+import { createGroundSurface } from '../world/GroundSurface.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -28,6 +29,12 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.player, true, 1, 1);
 
     this.backdrop = createGraveyardBackdrop(this);
+    this.groundSurface = createGroundSurface(
+      this,
+      level.world.width,
+      level.ground.y,
+      level.ground.height,
+    );
 
     this.hud = new GameHUD(this);
     this.hud.setHealth(1);
@@ -40,6 +47,9 @@ export class GameScene extends Phaser.Scene {
     };
     document.addEventListener('darkblood:spell', this.onSpell);
 
+    this.onJump = () => this.player.jump?.();
+    this.events.on('darkblood:jump', this.onJump);
+
     this.onSpace = (event) => {
       if (event.code === 'Space') this.player.castDarkBolt?.();
     };
@@ -50,8 +60,10 @@ export class GameScene extends Phaser.Scene {
       this.input.keyboard?.off('keydown', this.onSpace, this);
       this.input.keyboard?.off('keydown-ESC', this.togglePause, this);
       document.removeEventListener('darkblood:spell', this.onSpell);
+      this.events.off('darkblood:jump', this.onJump);
       this.controls?.destroy();
       this.backdrop?.destroy();
+      this.groundSurface?.destroy();
       this.projectiles?.clear(true, true);
       this.hud?.destroy();
     });
@@ -64,7 +76,9 @@ export class GameScene extends Phaser.Scene {
 
   update(_time, delta) {
     if (!this.player || !this.controls || this.pauseMenu?.isOpen) return;
-    this.controls.update(this.player, delta / 1000);
+    const deltaSeconds = delta / 1000;
+    this.controls.update(this.player, deltaSeconds);
+    this.player.updatePhysics(deltaSeconds);
     this.player.updateAnimations(delta);
 
     this.projectiles.getChildren().slice().forEach((projectile) => {
