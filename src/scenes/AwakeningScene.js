@@ -115,6 +115,7 @@ export class AwakeningScene extends Phaser.Scene {
         if (!this.queen?.active || !this.scene.isActive('AwakeningScene')) return;
         this.queen.setArtworkFrame(frameName);
         if (frameName === 'eyesAwaken') this.createLunarCharge();
+        if (frameName === 'conscious') this.finishAwakening();
       });
     }
   }
@@ -141,28 +142,16 @@ export class AwakeningScene extends Phaser.Scene {
         ease: 'Cubic.out',
         onComplete: () => charge.destroy(),
       });
-      this.time.delayedCall(1050, () => this.finishAwakening(chargeText));
     });
   }
 
-  finishAwakening(chargeText) {
+  finishAwakening() {
     if (!this.scene.isActive('AwakeningScene') || !this.queen?.active) return;
     this.queen.setArtworkFrame('conscious');
     this.queen.setLunarCharge(false);
     this.hud.setSpellEnabled(true);
-    this.tweens.add({ targets: chargeText, alpha: 0, duration: 260, onComplete: () => chargeText.destroy() });
-    const outline = this.add.circle(this.queen.x, this.queen.y - 58, 28, 0xe8d7ef, 0)
-      .setStrokeStyle(2, 0xe8d7ef, 0.95).setDepth(90);
-    this.tweens.add({ targets: outline, scale: 1.45, alpha: 0, duration: 430, ease: 'Sine.out', onComplete: () => outline.destroy() });
-    this.time.delayedCall(520, () => { this.showActTitle(); this.entranceComplete = true; });
-  }
-
-  showActTitle() {
-    const act = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'ACT I', {
-      color: '#f4f0e7', fontFamily: 'serif', fontSize: '13px', fontStyle: 'italic', letterSpacing: 5,
-    }).setOrigin(0.5).setDepth(500).setAlpha(0);
-    this.tweens.add({ targets: act, alpha: 1, duration: 280, hold: 700, yoyo: true, ease: 'Sine.inOut', onComplete: () => act.destroy() });
-    this.time.delayedCall(1500, () => {
+    this.entranceComplete = true;
+    this.time.delayedCall(220, () => {
       if (this.scene.isActive('AwakeningScene')) this.scene.start('GameScene');
     });
   }
