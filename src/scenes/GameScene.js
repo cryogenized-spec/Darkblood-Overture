@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config/gameConfig.js';
 import { createLevel01Runtime } from '../data/level01.js';
 import { LORE } from '../data/lore.js';
+import { DARK_BOLT_COOLDOWN_MS } from '../data/darkBoltFrames.js';
 import { DarkBoltProjectile } from '../entities/DarkBoltProjectile.js';
 import { ArabellaPlayer } from '../entities/ArabellaPlayer.js';
 import { GameHUD } from '../ui/GameHUD.js';
@@ -38,7 +39,10 @@ export class GameScene extends Phaser.Scene {
 
     this.hud = new GameHUD(this);
     this.hud.setHealth(1);
+    this.hud.setMana(this.player.mana, this.player.maxMana);
+    this.hud.setXp(this.player.getXpPercent(), this.player.level);
     this.hud.setSpellEnabled(true);
+    this.hud.setSpellCooldown(0, DARK_BOLT_COOLDOWN_MS);
     this.pauseMenu = new PauseMenu(this);
 
     this.controls = new PlayerController(this, 70);
@@ -80,6 +84,9 @@ export class GameScene extends Phaser.Scene {
     this.controls.update(this.player, deltaSeconds);
     this.player.updatePhysics(deltaSeconds);
     this.player.updateAnimations(delta);
+    this.hud?.setMana(this.player.mana, this.player.maxMana);
+    this.hud?.setXp(this.player.getXpPercent(), this.player.level);
+    this.hud?.setSpellCooldown(this.player.darkBoltCooldownMs, DARK_BOLT_COOLDOWN_MS);
 
     this.projectiles.getChildren().slice().forEach((projectile) => {
       if (!projectile.active) return;
