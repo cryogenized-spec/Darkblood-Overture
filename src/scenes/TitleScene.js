@@ -32,8 +32,19 @@ export class TitleScene extends Phaser.Scene {
     this.acceptingInput = false;
     hideTitlePrompt();
 
-    this.cameras.main.fadeOut(900, 0, 0, 0, (_camera, progress) => {
-      if (progress >= 1) this.scene.start('AwakeningScene');
+    // Use three deliberate darkness stages instead of a single abrupt fade. This
+    // gives the first awakening frame a clean, fully-black stage to arrive on.
+    const darkness = this.add.rectangle(400, 225, 800, 450, 0x000000, 0)
+      .setScrollFactor(0)
+      .setDepth(1000);
+    this.tweens.chain({
+      targets: darkness,
+      tweens: [
+        { alpha: 0.34, duration: 300, ease: 'Sine.inOut' },
+        { alpha: 0.68, duration: 300, ease: 'Sine.inOut' },
+        { alpha: 1, duration: 300, ease: 'Sine.inOut' },
+      ],
+      onComplete: () => this.scene.start('AwakeningScene'),
     });
   }
 }
