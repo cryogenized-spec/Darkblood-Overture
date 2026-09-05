@@ -65,6 +65,8 @@ export class GameHUD {
     this.levelNode = null;
     this.manaValueNode = null;
     this.spellNode = null;
+    this.spellEnabled = true;
+    this.spellCooldownMs = 0;
     this.jumpNode = null;
     this.resizeObserver = null;
     this.dpadCleanup = [];
@@ -201,9 +203,11 @@ export class GameHUD {
     const remaining = Math.max(0, Number(remainingMs) || 0);
     const total = Math.max(1, Number(totalMs) || 1);
     const progress = Math.max(0, Math.min(1, remaining / total));
-    this.spellCooldown.style.setProperty('--cooldown-progress', progress);
+    this.spellCooldownMs = remaining;
+    // The ring is drawn on the button's pseudo-element, not on its child span.
+    this.spellButton.style.setProperty('--cooldown-progress', progress);
     this.spellNode.classList.toggle('is-cooling-down', remaining > 0);
-    this.spellButton.disabled = remaining > 0;
+    this.spellButton.disabled = !this.spellEnabled || remaining > 0;
   }
 
   flickerHealth() {
@@ -214,8 +218,9 @@ export class GameHUD {
   }
 
   setSpellEnabled(enabled) {
-    this.spellNode.style.opacity = enabled ? '1' : '0.42';
-    this.spellButton.disabled = !enabled;
+    this.spellEnabled = Boolean(enabled);
+    this.spellNode.style.opacity = this.spellEnabled ? '1' : '0.42';
+    this.spellButton.disabled = !this.spellEnabled || this.spellCooldownMs > 0;
   }
 
   destroy() {

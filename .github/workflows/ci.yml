@@ -32,5 +32,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Gameplay regression tests
+        run: npm test
+
       - name: Build
         run: npm run build

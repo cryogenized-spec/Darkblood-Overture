@@ -2,6 +2,7 @@ import {
   DARK_BOLT_CAST_DISPLAY_HEIGHT,
   DARK_BOLT_CAST_FRAME_MS,
   DARK_BOLT_CAST_FRAMES,
+  DARK_BOLT_CAST_HAND_POSITION,
   DARK_BOLT_CAST_TEXTURE_KEYS,
 } from '../data/darkBoltFrames.js';
 
@@ -40,6 +41,17 @@ export class ArabellaDarkBoltCastSprite {
       applyFrameScale();
     };
 
+    sprite.setFacing = (direction) => {
+      // Unlike the idle/run art, the casting hand is on the left of the source image.
+      sprite.setFlipX(direction !== 'left');
+    };
+
+    sprite.getReleasePosition = () => {
+      const handX = (DARK_BOLT_CAST_HAND_POSITION.x - sprite.originX) * sprite.width;
+      const handY = (DARK_BOLT_CAST_HAND_POSITION.y - sprite.originY) * sprite.height;
+      return sprite.getWorldTransformMatrix().transformPoint(sprite.flipX ? -handX : handX, handY);
+    };
+
     sprite.beginCast = () => {
       sprite.sequenceIndex = 0;
       sprite.frameTimer = 0;
@@ -56,7 +68,8 @@ export class ArabellaDarkBoltCastSprite {
         sprite.sequenceIndex += 1;
         if (sprite.sequenceIndex >= DARK_BOLT_CAST_FRAMES.length) {
           sprite.setVisible(false);
-          return { done: true, released: false };
+          // A slow frame can cross both release and completion. Do not lose the shot.
+          return { done: true, released };
         }
         const frameName = DARK_BOLT_CAST_FRAMES[sprite.sequenceIndex].name;
         sprite.setArtworkFrame(frameName);
