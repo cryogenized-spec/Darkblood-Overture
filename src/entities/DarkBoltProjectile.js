@@ -87,6 +87,8 @@ export class DarkBoltProjectile {
     }
 
     const firstCroppedKey = getCroppedTexture(scene, firstKey);
+    const camera = scene.cameras.main;
+    const worldBounds = camera.useBounds ? camera.getBounds() : null;
     const sprite = scene.add.sprite(x, y, firstCroppedKey);
     sprite.setOrigin(0.5, 0.5);
     sprite.setDepth(19);
@@ -132,7 +134,12 @@ export class DarkBoltProjectile {
         sprite.setArtworkFrame(DARK_BOLT_PROJECTILE_FRAMES[sprite.sequenceIndex].name);
       }
 
-      if (sprite.lifetimeMs >= DARK_BOLT_PROJECTILE_MAX_LIFETIME_MS || sprite.x < -16 || sprite.x > 336) {
+      // The camera scrolls across a much wider world than the initial viewport.
+      // Keep the bolt alive until its entire artwork has left that world.
+      const bounds = sprite.getBounds();
+      const outsideWorld = worldBounds
+        && (bounds.right < worldBounds.left || bounds.left > worldBounds.right);
+      if (sprite.lifetimeMs >= DARK_BOLT_PROJECTILE_MAX_LIFETIME_MS || outsideWorld) {
         sprite.destroy();
         return false;
       }

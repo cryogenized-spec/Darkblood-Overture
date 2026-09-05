@@ -45,6 +45,20 @@ npm run build
 npm run preview
 ```
 
+## Gameplay regression tests
+
+Use Node.js 24 or later. After `npm install`, install the test browser once:
+
+```bash
+npx playwright install chromium
+npm test
+```
+
+The browser tests load the real game and cover Dark Bolt's release timing, hand alignment,
+left/right flight across the scrolling level, cleanup, mana/cooldown state, pause, and
+keyboard/touch controls. The test runner starts Vite automatically; if reusing a dev server,
+start it with `npm run dev -- --base=/`.
+
 ## Art
 
 Final splash/title artwork and gameplay pixel assets will be added as separate assets. The title scene is deliberately prepared so artwork can be replaced without changing its input flow.

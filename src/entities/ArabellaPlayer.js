@@ -6,8 +6,6 @@ import {
   DARK_BOLT_MANA_COST,
 } from '../data/darkBoltFrames.js';
 
-const CAST_HAND_OFFSET_X = 20;
-const CAST_HAND_OFFSET_Y = -66;
 const JUMP_VELOCITY = -110;
 const GRAVITY = 300;
 const INITIAL_MAX_MANA = 50;
@@ -55,7 +53,7 @@ export class ArabellaPlayer {
       container.facing = direction === 'left' ? 'left' : 'right';
       idle.setFlipX(container.facing === 'left');
       run.setFacing(container.facing);
-      cast.setFlipX(container.facing === 'left');
+      cast.setFacing(container.facing);
     };
 
     container.startRun = () => {
@@ -106,6 +104,7 @@ export class ArabellaPlayer {
       && container.darkBoltCooldownMs <= 0
       && container.mana >= DARK_BOLT_MANA_COST
       && scene.sys.isActive()
+      && !scene.pauseMenu?.visible
     );
 
     container.getManaPercent = () => (
@@ -140,10 +139,10 @@ export class ArabellaPlayer {
       container.darkBoltCooldownMs = DARK_BOLT_COOLDOWN_MS;
       container.mana = Math.max(0, container.mana - DARK_BOLT_MANA_COST);
       idle.setVisible(false);
-      run.setVisible(false);
       run.stopRun();
+      run.setVisible(false);
       cast.setPosition(0, 0);
-      cast.setFlipX(container.facing === 'left');
+      cast.setFacing(container.facing);
       cast.beginCast();
       return true;
     };
@@ -156,12 +155,11 @@ export class ArabellaPlayer {
         const result = cast.updateCast(deltaMs);
         if (result.released && !container.castReleased) {
           container.castReleased = true;
+          const direction = container.facing === 'left' ? -1 : 1;
+          const { x: projectileX, y: projectileY } = cast.getReleasePosition();
+          scene.spawnDarkBolt?.(projectileX, projectileY, direction);
         }
         if (result.done) {
-          const direction = container.facing === 'left' ? -1 : 1;
-          const projectileX = container.x + direction * CAST_HAND_OFFSET_X;
-          const projectileY = container.y + CAST_HAND_OFFSET_Y;
-          scene.spawnDarkBolt?.(projectileX, projectileY, direction);
           container.casting = false;
           container.castReleased = false;
           cast.setVisible(false);

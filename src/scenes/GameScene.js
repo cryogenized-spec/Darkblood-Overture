@@ -91,7 +91,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time, delta) {
-    if (!this.player || !this.controls || this.pauseMenu?.isOpen) return;
+    if (!this.player || !this.controls || this.pauseMenu?.visible) return;
     const deltaSeconds = delta / 1000;
     this.controls.update(this.player, deltaSeconds);
     this.player.updatePhysics(deltaSeconds);
@@ -99,6 +99,7 @@ export class GameScene extends Phaser.Scene {
     this.hud?.setMana(this.player.mana, this.player.maxMana);
     this.hud?.setXp(this.player.getXpPercent(), this.player.level);
     this.hud?.setSpellCooldown(this.player.darkBoltCooldownMs, DARK_BOLT_COOLDOWN_MS);
+    this.hud?.setSpellEnabled(this.player.canCastDarkBolt());
 
     this.projectiles.getChildren().slice().forEach((projectile) => {
       if (!projectile.active) return;
@@ -108,5 +109,6 @@ export class GameScene extends Phaser.Scene {
 
   togglePause() {
     this.pauseMenu?.toggle();
+    this.hud?.setSpellEnabled(this.player.canCastDarkBolt());
   }
 }
