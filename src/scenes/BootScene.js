@@ -26,6 +26,11 @@ import {
   LEVEL_01_BACKGROUND_LAYERS,
   LEVEL_01_BACKGROUND_PATH,
 } from '../data/level01Backgrounds.js';
+import {
+  SKELETON_INFANTRY_WALK_FRAMES,
+  SKELETON_INFANTRY_SPRITE_PATH,
+  SKELETON_INFANTRY_TEXTURE_KEYS,
+} from '../data/skeletonInfantry.js';
 
 const DEV_SPLASH_KEY = 'dev-splash-art';
 const TITLE_ART_KEY = 'title-screen-art';
@@ -69,6 +74,13 @@ export class BootScene extends Phaser.Scene {
       );
     });
 
+    SKELETON_INFANTRY_WALK_FRAMES.forEach(({ name, file }) => {
+      this.load.image(
+        SKELETON_INFANTRY_TEXTURE_KEYS[name],
+        `${SKELETON_INFANTRY_SPRITE_PATH}${file}`,
+      );
+    });
+
     Object.values(LEVEL_01_BACKGROUND_LAYERS).forEach(({ key, file }) => {
       this.load.image(key, `${LEVEL_01_BACKGROUND_PATH}${file}`);
     });
@@ -81,6 +93,7 @@ export class BootScene extends Phaser.Scene {
       ...ARABELLA_RUN_FRAMES.map(({ name }) => ARABELLA_RUN_TEXTURE_KEYS[name]),
       ...DARK_BOLT_CAST_FRAMES.map(({ name }) => DARK_BOLT_CAST_TEXTURE_KEYS[name]),
       ...DARK_BOLT_PROJECTILE_FRAMES.map(({ name }) => DARK_BOLT_PROJECTILE_TEXTURE_KEYS[name]),
+      ...SKELETON_INFANTRY_WALK_FRAMES.map(({ name }) => SKELETON_INFANTRY_TEXTURE_KEYS[name]),
     ].forEach((textureKey) => {
       const texture = this.textures.get(textureKey);
       if (!texture) throw new Error(`Missing loaded texture '${textureKey}'.`);

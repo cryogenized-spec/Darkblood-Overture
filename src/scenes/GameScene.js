@@ -2,12 +2,13 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config/gameConfig.js';
 import { createLevel01Runtime } from '../data/level01.js';
 import { LORE } from '../data/lore.js';
-import { DARK_BOLT_COOLDOWN_MS } from '../data/darkBoltFrames.js';
+import { DARK_BOLT_COOLDOWN_MS, DARK_BOLT_DAMAGE } from '../data/darkBoltFrames.js';
 import { DarkBoltProjectile } from '../entities/DarkBoltProjectile.js';
 import { ArabellaPlayer } from '../entities/ArabellaPlayer.js';
 import { GameHUD } from '../ui/GameHUD.js';
 import { PauseMenu } from '../ui/PauseMenu.js';
 import { PlayerController } from '../input/PlayerController.js';
+import { SkeletonDirector } from '../systems/SkeletonDirector.js';
 import { createGraveyardBackdrop } from '../world/GraveyardBackdrop.js';
 import { createGroundSurface } from '../world/GroundSurface.js';
 
@@ -37,8 +38,10 @@ export class GameScene extends Phaser.Scene {
       level.ground.height,
     );
 
+    this.skeletonDirector = new SkeletonDirector(this, level.ground.y);
+
     this.hud = new GameHUD(this);
-    this.hud.setHealth(1);
+    this.hud.setHealth(this.player.getHealthPercent());
     this.hud.setMana(this.player.mana, this.player.maxMana);
     this.hud.setXp(this.player.getXpPercent(), this.player.level);
     this.hud.setSpellEnabled(true);
@@ -69,6 +72,7 @@ export class GameScene extends Phaser.Scene {
       this.backdrop?.destroy();
       this.groundSurface?.destroy();
       this.projectiles?.clear(true, true);
+      this.skeletonDirector?.destroy();
       this.hud?.destroy();
     });
   }
@@ -96,14 +100,31 @@ export class GameScene extends Phaser.Scene {
     this.controls.update(this.player, deltaSeconds);
     this.player.updatePhysics(deltaSeconds);
     this.player.updateAnimations(delta);
+    this.hud?.setHealth(this.player.getHealthPercent());
     this.hud?.setMana(this.player.mana, this.player.maxMana);
     this.hud?.setXp(this.player.getXpPercent(), this.player.level);
     this.hud?.setSpellCooldown(this.player.darkBoltCooldownMs, DARK_BOLT_COOLDOWN_MS);
     this.hud?.setSpellEnabled(this.player.canCastDarkBolt());
 
+    this.skeletonDirector?.update(delta, this.player);
+
     this.projectiles.getChildren().slice().forEach((projectile) => {
       if (!projectile.active) return;
       projectile.updateProjectile(delta);
+      this.resolveProjectileHits(projectile);
+    });
+  }
+
+  resolveProjectileHits(projectile) {
+    if (!projectile.active) return;
+    const bounds = projectile.getBounds();
+    this.skeletonDirector?.skeletons.slice().forEach((skeleton) => {
+      if (!skeleton.active || !skeleton.alive || !projectile.active) return;
+      const target = skeleton.getBounds();
+      if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, target)) {
+        skeleton.takeDamage(DARK_BOLT_DAMAGE);
+        projectile.destroy();
+      }
     });
   }
 

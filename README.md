@@ -20,6 +20,8 @@ The first pass establishes the project shell without prematurely building gamepl
 - Level 01 data socket
 - Three-plane parallax system socket (`far`, `mid`, `near`)
 - Escalating wave director socket
+- Timed skeleton-infantry patrol (spawns ~10s in, walks in from the right and
+  settles into a guard stance; health derived from the player's max health)
 - Queen and spell content placeholders
 - GitHub Actions build check
 

@@ -42,8 +42,10 @@ export class ArabellaDarkBoltCastSprite {
     };
 
     sprite.setFacing = (direction) => {
-      // Unlike the idle/run art, the casting hand is on the left of the source image.
-      sprite.setFlipX(direction !== 'left');
+      // The cast art faces the same direction as the idle/run art (right when
+      // unflipped), so mirror it only when facing left — otherwise Arabella
+      // appears to turn her back on the player during the cast.
+      sprite.setFlipX(direction === 'left');
     };
 
     sprite.getReleasePosition = () => {

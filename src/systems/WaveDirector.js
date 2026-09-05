@@ -2,7 +2,8 @@
  * Future Level 01 wave director.
  *
  * Waves will be data-defined and their threat will escalate over time.
- * No enemy spawning is performed in Pass 1.
+ * Enemy *waves* are not driven here yet — the first skeleton patrol is a
+ * separate, timed SkeletonDirector socket (see systems/SkeletonDirector.js).
  */
 export class WaveDirector {
   constructor(definitions = []) {

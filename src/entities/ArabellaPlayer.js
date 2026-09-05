@@ -8,6 +8,8 @@ import {
 
 const JUMP_VELOCITY = -110;
 const GRAVITY = 300;
+const INITIAL_MAX_HEALTH = 100;
+const INITIAL_HEALTH = 100;
 const INITIAL_MAX_MANA = 50;
 const INITIAL_MANA = 50;
 const MANA_REGEN_PER_SECOND = DARK_BOLT_MANA_COST / 4;
@@ -37,6 +39,8 @@ export class ArabellaPlayer {
     container.idleSprite = idle;
     container.runSprite = run;
     container.castSprite = cast;
+    container.maxHealth = INITIAL_MAX_HEALTH;
+    container.health = INITIAL_HEALTH;
     container.maxMana = INITIAL_MAX_MANA;
     container.mana = INITIAL_MANA;
     container.manaRegenPerSecond = MANA_REGEN_PER_SECOND;
@@ -110,6 +114,15 @@ export class ArabellaPlayer {
     container.getManaPercent = () => (
       container.maxMana > 0 ? container.mana / container.maxMana : 0
     );
+
+    container.getHealthPercent = () => (
+      container.maxHealth > 0 ? container.health / container.maxHealth : 0
+    );
+
+    container.takeDamage = (amount) => {
+      container.health = Math.max(0, container.health - (Number(amount) || 0));
+      return container.health <= 0;
+    };
 
     container.getXpPercent = () => (
       container.xpToNextLevel > 0 ? container.xp / container.xpToNextLevel : 0
