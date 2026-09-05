@@ -56,7 +56,7 @@ for (const facing of ['left', 'right']) {
       player.updateAnimations(duration);
       return {
         accepted, duplicateAccepted, runVisible, beforeRelease, released,
-        expectedX: player.x + (facing === 'left' ? -1 : 1)
+        expectedX: player.x + (facing === 'left' ? 1 : -1)
           * (0.5 - data.DARK_BOLT_CAST_HAND_POSITION.x) * player.castSprite.displayWidth,
         expectedY: player.y + (data.DARK_BOLT_CAST_HAND_POSITION.y - 1)
           * player.castSprite.displayHeight,
@@ -75,7 +75,7 @@ for (const facing of ['left', 'right']) {
     expect(result.beforeRelease).toBe(0);
     expect(result.released).toMatchObject({
       count: 1, casting: true, direction: facing === 'left' ? -1 : 1,
-      flipped: facing === 'left', castFlipped: facing === 'right',
+      flipped: facing === 'left', castFlipped: facing === 'left',
     });
     expect(result.released.x).toBeCloseTo(result.expectedX, 3);
     expect(result.released.y).toBeCloseTo(result.expectedY, 3);

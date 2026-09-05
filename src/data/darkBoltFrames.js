@@ -11,7 +11,9 @@ export const DARK_BOLT_CAST_TEXTURE_KEYS = Object.freeze(
   Object.fromEntries(DARK_BOLT_CAST_FRAMES.map(({ name }) => [name, `arabella-darkbolt-cast-${name}`])),
 );
 export const DARK_BOLT_CAST_SPRITE_PATH = `${import.meta.env.BASE_URL}assets/sprites/characters/arabella/cast-dark-bolt/`;
-// Normalized palm position in the release artwork; the unflipped art casts left.
+// Normalized palm position in the release artwork. The unflipped art faces
+// right (matching idle/run); the raised casting hand sits toward the sprite's
+// left edge, so the bolt leaves the hand on the far side of the body.
 export const DARK_BOLT_CAST_HAND_POSITION = Object.freeze({ x: 0.27, y: 0.37 });
 
 export const DARK_BOLT_PROJECTILE_DISPLAY_HEIGHT = 16;
@@ -22,6 +24,7 @@ export const DARK_BOLT_PROJECTILE_MAX_LIFETIME_MS = 2600;
 // Recovery already blocks another cast for the full animation; show that in the HUD.
 export const DARK_BOLT_COOLDOWN_MS = DARK_BOLT_CAST_FRAME_MS * DARK_BOLT_CAST_FRAMES.length;
 export const DARK_BOLT_MANA_COST = 2.5;
+export const DARK_BOLT_DAMAGE = 20;
 
 export const DARK_BOLT_PROJECTILE_FRAMES = Object.freeze([
   { name: 'flightA', file: '01-dark-bolt-flight-a.png' },
