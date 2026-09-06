@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/gameConfig.js';
+import { fadeToDarkness } from '../ui/darknessVeil.js';
 
 export class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -7,6 +8,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.options = ['NEW GAME', 'LOAD GAME', 'OPTIONS', 'CREDITS'];
     this.selected = 0;
     this.placeholderOpen = false;
+    this.transitioning = false;
   }
 
   create() {
@@ -81,11 +83,14 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   confirm() {
-    if (this.placeholderOpen) return;
+    if (this.placeholderOpen || this.transitioning) return;
 
     switch (this.selected) {
       case 0:
-        this.scene.start('AwakeningScene');
+        this.transitioning = true;
+        fadeToDarkness().then(() => {
+          if (this.scene.isActive('MainMenuScene')) this.scene.start('AwakeningScene');
+        });
         break;
       case 1:
         this.showPlaceholder('LOAD GAME', 'SAVE SYSTEM RESERVED FOR A FUTURE PASS');

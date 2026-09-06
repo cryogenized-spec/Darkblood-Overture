@@ -82,6 +82,15 @@ body {
   -webkit-user-drag: none;
 }
 
+.darkness-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .orientation-card {
   font-family: Georgia, 'Times New Roman', serif;
 }
