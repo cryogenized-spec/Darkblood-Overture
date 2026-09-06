@@ -10,7 +10,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Darkblood" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./orientation.css" />
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
     <title>Darkblood: Overture</title>
@@ -19,28 +18,9 @@
     <main id="app" aria-label="Darkblood: Overture">
       <div id="game-shell">
         <div id="game-container"></div>
-
-        <section
-          id="orientation-gate"
-          aria-live="polite"
-          role="button"
-          tabindex="0"
-          aria-label="Orientation gate. Rotate your device to landscape."
-        >
-          <div class="orientation-backdrop"></div>
-          <div class="orientation-card">
-            <div id="orientation-symbol" class="orientation-symbol">⟲</div>
-            <p id="orientation-kicker" class="orientation-kicker">Darkblood: Overture</p>
-            <h1 id="orientation-title" class="orientation-title">Landscape only</h1>
-            <p id="orientation-message" class="orientation-message">Turn your device sideways to enter the game.</p>
-            <button id="orientation-continue" type="button" hidden>Enter the Overture</button>
-            <p id="orientation-hint" class="orientation-hint">The game is locked to landscape.</p>
-          </div>
-        </section>
       </div>
     </main>
 
-    <script defer src="./orientation.js"></script>
     <script defer src="./service-worker-register.js"></script>
     <script type="module" src="./src/main.js"></script>
   </body>

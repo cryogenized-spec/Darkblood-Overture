@@ -11,10 +11,18 @@ export const DARK_BOLT_CAST_TEXTURE_KEYS = Object.freeze(
   Object.fromEntries(DARK_BOLT_CAST_FRAMES.map(({ name }) => [name, `arabella-darkbolt-cast-${name}`])),
 );
 export const DARK_BOLT_CAST_SPRITE_PATH = `${import.meta.env.BASE_URL}assets/sprites/characters/arabella/cast-dark-bolt/`;
-// Normalized palm position in the release artwork. The unflipped art faces
-// right (matching idle/run); the raised casting hand sits toward the sprite's
-// left edge, so the bolt leaves the hand on the far side of the body.
-export const DARK_BOLT_CAST_HAND_POSITION = Object.freeze({ x: 0.27, y: 0.37 });
+// The bolt leaves her hand on the throw pose, not on the 'release' keyframe:
+// in the 'release' artwork the consolidated charge is still hovering cupped
+// above her palm, so spawning the projectile there made the shot fly off
+// before Arabella had finished her cast motion. 'recoil' is the first frame
+// whose art shows the charge launched clear of the hand.
+export const DARK_BOLT_RELEASE_FRAME = 'recoil';
+// Normalized position of the launched bolt in the release-frame artwork
+// (DARK_BOLT_RELEASE_FRAME): the bright charge core just clear of her thrust
+// palm, measured from the recoil sprite. The unflipped art faces right
+// (matching idle/run); the casting hand sits toward the sprite's left edge,
+// so the bolt leaves the hand on the far side of the body.
+export const DARK_BOLT_CAST_HAND_POSITION = Object.freeze({ x: 0.22, y: 0.25 });
 
 export const DARK_BOLT_PROJECTILE_DISPLAY_HEIGHT = 16;
 export const DARK_BOLT_PROJECTILE_DISPLAY_WIDTH_SCALE = 1.25;

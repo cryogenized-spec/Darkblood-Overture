@@ -4,6 +4,7 @@ import {
   DARK_BOLT_CAST_FRAMES,
   DARK_BOLT_CAST_HAND_POSITION,
   DARK_BOLT_CAST_TEXTURE_KEYS,
+  DARK_BOLT_RELEASE_FRAME,
 } from '../data/darkBoltFrames.js';
 
 export class ArabellaDarkBoltCastSprite {
@@ -75,7 +76,9 @@ export class ArabellaDarkBoltCastSprite {
         }
         const frameName = DARK_BOLT_CAST_FRAMES[sprite.sequenceIndex].name;
         sprite.setArtworkFrame(frameName);
-        if (frameName === 'release') released = true;
+        // The projectile spawns with the throw pose so the shot never outruns
+        // the cast animation.
+        if (frameName === DARK_BOLT_RELEASE_FRAME) released = true;
       }
       return { done: false, released };
     };

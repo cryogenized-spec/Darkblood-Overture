@@ -1,8 +1,11 @@
 import { GAME_WIDTH } from '../config/gameConfig.js';
+import { QUEEN } from '../data/queen.js';
 import './GameHUD.css';
 
 const HUD_SCALE = 0.65;
-const HEALTH_FILL_WIDTH = 72;
+// Drawable width inside the framed bars. The fill must never paint past the
+// bar frame, so full health/mana resolve exactly to this inner width.
+const BAR_INNER_WIDTH = 46.8;
 const XP_BAR_WIDTH = 118;
 
 function element(tag, className, text = '') {
@@ -67,6 +70,7 @@ export class GameHUD {
     this.spellNode = null;
     this.spellEnabled = true;
     this.spellCooldownMs = 0;
+    this.healthFillResetTimer = 0;
     this.jumpNode = null;
     this.resizeObserver = null;
     this.dpadCleanup = [];
@@ -97,7 +101,12 @@ export class GameHUD {
   }
 
   createPlayerStatus() {
-    const portrait = element('div', 'game-hud-status__portrait', 'A');
+    const portrait = element('div', 'game-hud-status__portrait');
+    const portraitArt = element('img', 'game-hud-status__portrait-art');
+    portraitArt.src = `${import.meta.env.BASE_URL}${QUEEN.portrait.file}`;
+    portraitArt.alt = QUEEN.portrait.alt;
+    portraitArt.draggable = false;
+    portrait.appendChild(portraitArt);
     this.levelNode = element('div', 'game-hud-status__level', 'LV 0');
     const name = element('div', 'game-hud-status__name', 'ARABELLA');
     const health = element('div', 'game-hud-bar game-hud-bar--health');
@@ -179,13 +188,32 @@ export class GameHUD {
 
   setHealth(value) {
     const amount = Math.max(0, Math.min(1, Number(value) || 0));
-    this.healthFill.style.width = `calc(var(--game-unit) * ${HEALTH_FILL_WIDTH * amount})`;
+    this.healthFill.style.width = `calc(var(--game-unit) * ${BAR_INNER_WIDTH * amount})`;
+  }
+
+  // Consolidates the life bar from empty to exactly full over `durationMs`,
+  // so the awakening's lifeforce surge and the HUD fill share one clock. The
+  // clamped width keeps the fill inside the bar frame at every step.
+  fillHealth(durationMs = 0) {
+    const ms = Math.max(0, Number(durationMs) || 0);
+    window.clearTimeout(this.healthFillResetTimer);
+    this.healthFillResetTimer = 0;
+    this.healthFill.style.transition = ms > 0
+      ? `width ${ms}ms cubic-bezier(0.24, 0.62, 0.28, 1)`
+      : '';
+    this.setHealth(1);
+    if (ms > 0) {
+      this.healthFillResetTimer = window.setTimeout(() => {
+        this.healthFill.style.transition = '';
+        this.healthFillResetTimer = 0;
+      }, ms + 80);
+    }
   }
 
   setMana(mana, maxMana) {
     const max = Math.max(1, Number(maxMana) || 1);
     const current = Math.max(0, Math.min(max, Number(mana) || 0));
-    this.manaFill.style.width = `calc(var(--game-unit) * ${46.8 * (current / max)})`;
+    this.manaFill.style.width = `calc(var(--game-unit) * ${BAR_INNER_WIDTH * (current / max)})`;
     this.manaValueNode.textContent = `${current.toFixed(1).replace(/\.0$/, '')} / ${max}`;
   }
 
@@ -224,6 +252,8 @@ export class GameHUD {
   }
 
   destroy() {
+    window.clearTimeout(this.healthFillResetTimer);
+    this.healthFillResetTimer = 0;
     this.dpadCleanup.forEach((cleanup) => cleanup());
     this.dpadCleanup = [];
     if (this.onSpellPointer) {

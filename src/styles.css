@@ -91,24 +91,6 @@ body {
   pointer-events: none;
 }
 
-.orientation-card {
-  font-family: Georgia, 'Times New Roman', serif;
-}
-
-#orientation-symbol {
-  text-shadow: 0 0 16px rgba(216, 180, 254, 0.28);
-}
-
-.orientation-gate-exit {
-  animation: orientation-gate-fade 420ms ease forwards;
-  pointer-events: none;
-}
-
-@keyframes orientation-gate-fade {
-  from { opacity: 1; }
-  to { opacity: 0; visibility: hidden; }
-}
-
 .title-prompt {
   position: absolute;
   left: 50%;

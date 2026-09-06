@@ -3,7 +3,6 @@ import { expect, test } from '@playwright/test';
 // Load the real Phaser assets, then skip the intro to exercise gameplay directly.
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Enter the Overture' }).click();
   await page.waitForFunction(() => window.darkbloodGame?.scene.isActive('DevSplashScene'));
   await page.evaluate(() => {
     const game = window.darkbloodGame;
