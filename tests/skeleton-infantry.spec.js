@@ -11,6 +11,11 @@ test.beforeEach(async ({ page }) => {
     game.scene.start('GameScene');
   });
   await page.waitForFunction(() => window.darkbloodGame.scene.getScene('GameScene').player?.active);
+  await page.evaluate(() => {
+    window.darkbloodGame.loop.sleep();
+    const scene = window.darkbloodGame.scene.getScene('GameScene');
+    scene.skeletonDirector?.reset();
+  });
 });
 
 test.afterEach(async ({ page }) => {
@@ -23,6 +28,7 @@ test('spawns nothing until the delay elapses, then walks in from the right', asy
     window.darkbloodGame.loop.sleep();
     const scene = window.darkbloodGame.scene.getScene('GameScene');
     const director = scene.skeletonDirector;
+    director.reset();
     const player = scene.player;
 
     const beforeDelay = director.skeletons.length;
@@ -70,6 +76,7 @@ test('stops at guard range and faces the player once it settles', async ({ page 
     window.darkbloodGame.loop.sleep();
     const scene = window.darkbloodGame.scene.getScene('GameScene');
     const director = scene.skeletonDirector;
+    director.reset();
     const player = scene.player;
 
     director.update(data.SKELETON_INFANTRY.spawnDelayMs, player);
@@ -102,6 +109,7 @@ test('a dark bolt damages the skeleton and destroys it when health runs out', as
     window.darkbloodGame.loop.sleep();
     const scene = window.darkbloodGame.scene.getScene('GameScene');
     const director = scene.skeletonDirector;
+    director.reset();
     const player = scene.player;
 
     director.update(skeletonData.SKELETON_INFANTRY.spawnDelayMs, player);
