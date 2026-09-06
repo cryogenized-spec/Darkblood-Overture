@@ -1,12 +1,28 @@
 import {
   ARABELLA_AWAKENING_FRAMES,
+  ARABELLA_AWAKENING_REFERENCE_FRAME,
   ARABELLA_SPRITE_DISPLAY_HEIGHT,
   ARABELLA_TEXTURE_KEYS,
 } from '../data/arabellaAwakeningFrames.js';
 
-const AWAKENING_VISUAL_OFFSET_Y = -5;
+// Frames are tightly cropped to the figure, so anchoring the origin at the
+// bottom keeps her feet planted exactly on the ground line with no offset —
+// and keeps the fully-upright pose aligned with the in-game idle sprite.
+const AWAKENING_VISUAL_OFFSET_Y = 0;
 
 export class ArabellaAwakeningSprite {
+  // All frames share a single scale factor derived from one reference frame.
+  // This keeps Arabella's feet planted on the ground and lets the sequence read
+  // as a rise instead of the sprite ballooning and "jumping" between keyframes.
+  static resolveScale(scene) {
+    const key = ARABELLA_TEXTURE_KEYS[ARABELLA_AWAKENING_REFERENCE_FRAME];
+    const source = scene.textures.get(key)?.getSourceImage();
+    if (!source || source.height <= 0) {
+      throw new Error(`Arabella reference texture '${key}' has invalid source dimensions.`);
+    }
+    return ARABELLA_SPRITE_DISPLAY_HEIGHT / source.height;
+  }
+
   static create(scene, x, y) {
     const textureKey = ARABELLA_TEXTURE_KEYS.dormant;
     if (!scene.textures.exists(textureKey)) {
@@ -14,21 +30,16 @@ export class ArabellaAwakeningSprite {
     }
 
     const sprite = scene.add.sprite(x, y + AWAKENING_VISUAL_OFFSET_Y, textureKey);
+    const scale = ArabellaAwakeningSprite.resolveScale(scene);
+
     sprite.setOrigin(0.5, 1);
     sprite.setDepth(20);
     sprite.setVisible(true);
     sprite.setAlpha(1);
     sprite.setScrollFactor(0);
     sprite.baseHeight = ARABELLA_SPRITE_DISPLAY_HEIGHT;
-
-    const applyFrameScale = () => {
-      const source = sprite.texture.getSourceImage();
-      if (!source || source.height <= 0) {
-        throw new Error('Arabella texture has invalid source dimensions.');
-      }
-
-      sprite.setScale(sprite.baseHeight / source.height);
-    };
+    sprite.awakeningScale = scale;
+    sprite.setScale(scale);
 
     sprite.setArtworkFrame = (name) => {
       const frame = ARABELLA_AWAKENING_FRAMES.find((entry) => entry.name === name);
@@ -40,7 +51,7 @@ export class ArabellaAwakeningSprite {
       }
 
       sprite.setTexture(nextKey);
-      applyFrameScale();
+      sprite.setScale(sprite.awakeningScale);
       sprite.setVisible(true);
     };
 
@@ -48,7 +59,6 @@ export class ArabellaAwakeningSprite {
       sprite.setTint(active ? 0xf0dff4 : 0xffffff);
     };
 
-    applyFrameScale();
     return sprite;
   }
 }

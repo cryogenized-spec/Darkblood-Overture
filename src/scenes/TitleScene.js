@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { showCinematicArt, hideCinematicArt } from '../ui/cinematicArtOverlay.js';
 import { createTitlePrompt, hideTitlePrompt } from '../ui/titlePrompt.js';
+import { fadeToDarkness } from '../ui/darknessVeil.js';
 
 const TITLE_ART_PATH = `${import.meta.env.BASE_URL}assets/ui/title-screen/darkblood-overture-title.png`;
 
@@ -8,6 +9,7 @@ export class TitleScene extends Phaser.Scene {
   constructor() {
     super('TitleScene');
     this.acceptingInput = false;
+    this.transitionStarted = false;
   }
 
   create() {
@@ -28,12 +30,17 @@ export class TitleScene extends Phaser.Scene {
   }
 
   handleInput() {
-    if (!this.acceptingInput) return;
+    if (!this.acceptingInput || this.transitionStarted) return;
     this.acceptingInput = false;
+    this.transitionStarted = true;
     hideTitlePrompt();
 
-    this.cameras.main.fadeOut(900, 0, 0, 0, (_camera, progress) => {
-      if (progress >= 1) this.scene.start('AwakeningScene');
+    // Push the screen out through three increasing stages of darkness. Once
+    // fully black, hand over to the awakening cinematic.
+    fadeToDarkness().then(() => {
+      if (!this.scene.isActive('TitleScene')) return;
+      hideCinematicArt();
+      this.scene.start('AwakeningScene');
     });
   }
 }

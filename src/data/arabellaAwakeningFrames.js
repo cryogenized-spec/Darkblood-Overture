@@ -1,5 +1,13 @@
 export const ARABELLA_SPRITE_DISPLAY_HEIGHT = 64;
 
+// The reference frame anchors the consistent scale for the whole sequence. The
+// awakening artwork consists of separately cropped canvases of wildly different
+// pixel dimensions (the character starts collapsed and ends fully upright), so
+// scaling every frame by its own height would make her balloon and "jump".
+// Instead every frame is scaled by the factor derived from this one standing
+// frame, which keeps her feet planted and lets the sequence read as a rise.
+export const ARABELLA_AWAKENING_REFERENCE_FRAME = 'conscious';
+
 export const ARABELLA_AWAKENING_FRAMES = Object.freeze([
   { name: 'dormant', file: '01-dormant.png' },
   { name: 'shadowStir', file: '02-shadow-stir.png' },
