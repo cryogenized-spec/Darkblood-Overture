@@ -45,8 +45,6 @@ function startGame() {
   window.darkbloodGame = game;
 }
 
-window.addEventListener('darkblood:orientation-ready', startGame, { once: true });
-
-// Handles cases where the orientation bootstrap has already acknowledged before
-// this module evaluated.
-if (window.darkbloodOrientationReady === true) startGame();
+// The boot flow opens straight on the development splash: the module script is
+// deferred, so the game shell already exists in the DOM at this point.
+startGame();

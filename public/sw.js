@@ -1,10 +1,8 @@
-const CACHE_NAME = 'darkblood-overture-v4';
+const CACHE_NAME = 'darkblood-overture-v5';
 const BASE_URL = new URL('./', self.location.href);
 const SHELL_URLS = [
   new URL('./', BASE_URL).href,
   new URL('./manifest.webmanifest', BASE_URL).href,
-  new URL('./orientation.css', BASE_URL).href,
-  new URL('./orientation.js', BASE_URL).href,
   new URL('./service-worker-register.js', BASE_URL).href,
 ];
 

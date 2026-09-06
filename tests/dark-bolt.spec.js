@@ -3,7 +3,6 @@ import { expect, test } from '@playwright/test';
 // Load the real Phaser assets, then skip the intro to exercise gameplay directly.
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Enter the Overture' }).click();
   await page.waitForFunction(() => window.darkbloodGame?.scene.isActive('DevSplashScene'));
   await page.evaluate(() => {
     const game = window.darkbloodGame;
@@ -36,7 +35,7 @@ for (const facing of ['left', 'right']) {
       const duplicateAccepted = player.castDarkBolt();
       const runVisible = player.runSprite.visible;
       const releaseMs = data.DARK_BOLT_CAST_FRAME_MS
-        * data.DARK_BOLT_CAST_FRAMES.findIndex((frame) => frame.name === 'release');
+        * data.DARK_BOLT_CAST_FRAMES.findIndex((frame) => frame.name === data.DARK_BOLT_RELEASE_FRAME);
       player.updateAnimations(releaseMs - 1);
       const beforeRelease = scene.projectiles.getLength();
       player.updateAnimations(1);
@@ -257,12 +256,18 @@ test('Space and the touch button both fire after scrolling away from the first s
   await page.evaluate(() => window.darkbloodGame.scene.getScene('GameScene').player.setFacing('left'));
   await page.getByRole('button', { name: 'Dark Bolt', exact: true }).tap();
   await expect.poll(() => page.evaluate(() => window.darkbloodShotLog.length)).toBe(2);
-  const result = await page.evaluate(() => {
+  const result = await page.evaluate(async () => {
+    const data = await import('/src/data/darkBoltFrames.js');
     const scene = window.darkbloodGame.scene.getScene('GameScene');
-    return { shots: window.darkbloodShotLog, active: scene.projectiles.getLength(), scroll: scene.cameras.main.scrollX };
+    return {
+      shots: window.darkbloodShotLog,
+      active: scene.projectiles.getLength(),
+      scroll: scene.cameras.main.scrollX,
+      releaseIndex: data.DARK_BOLT_CAST_FRAMES.findIndex((frame) => frame.name === data.DARK_BOLT_RELEASE_FRAME),
+    };
   });
   expect(result.shots.map(({ direction, frame }) => ({ direction, frame }))).toEqual([
-    { direction: 1, frame: 2 }, { direction: -1, frame: 2 },
+    { direction: 1, frame: result.releaseIndex }, { direction: -1, frame: result.releaseIndex },
   ]);
   expect(result.active).toBe(2);
   expect(result.scroll).toBeGreaterThan(0);

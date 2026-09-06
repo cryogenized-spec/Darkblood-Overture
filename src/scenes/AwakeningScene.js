@@ -7,6 +7,7 @@ import {
   ARABELLA_TEXTURE_KEYS,
 } from '../data/arabellaAwakeningFrames.js';
 import { clearDarkness } from '../ui/darknessVeil.js';
+import { showLifeforceLightning, hideLifeforceLightning } from '../ui/lifeforceLightning.js';
 import { ArabellaAwakeningSprite } from '../entities/ArabellaAwakeningSprite.js';
 import { GameHUD } from '../ui/GameHUD.js';
 import { PauseMenu } from '../ui/PauseMenu.js';
@@ -45,6 +46,8 @@ export class AwakeningScene extends Phaser.Scene {
     this.createAwakeningBackdrop(level);
 
     this.hud = new GameHUD(this);
+    // Life is dormant: the bar stays empty for the entire 13-frame rise and
+    // only consolidates when the lifeforce surge lightning climbs around her.
     this.hud.setHealth(0);
     this.hud.setSpellEnabled(false);
     this.pauseMenu = new PauseMenu(this);
@@ -52,6 +55,7 @@ export class AwakeningScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ESC', this.togglePause, this);
     this.events.once('shutdown', () => {
       this.input.keyboard?.off('keydown-ESC', this.togglePause, this);
+      hideLifeforceLightning();
       this.backdrop?.destroy();
       this.groundSurface?.destroy();
       this.hud?.destroy();
@@ -96,7 +100,8 @@ export class AwakeningScene extends Phaser.Scene {
       this.time.delayedCall(at, () => {
         if (!this.queen?.active || !this.scene.isActive('AwakeningScene')) return;
         this.crossfadeToFrame(name);
-        if (name === 'eyesAwaken') this.createLunarCharge();
+        if (name === QUEEN.entrance.awarenessFrame) this.beginAwareness();
+        if (name === QUEEN.entrance.lifeforce.startFrame) this.beginLifeforceSurge();
       });
     }
 
@@ -130,7 +135,10 @@ export class AwakeningScene extends Phaser.Scene {
     });
   }
 
-  createLunarCharge() {
+  // Her gaze opens: the lifeforce label surfaces and her silhouette brightens.
+  // The life bar deliberately stays empty through the whole rise — it only
+  // consolidates once the surge below begins.
+  beginAwareness() {
     const chargeText = this.add.text(GAME_WIDTH / 2, 103, QUEEN.entrance.lifeforceLabel, {
       color: '#c9aacd', fontFamily: 'monospace', fontSize: '4px', letterSpacing: 1,
     }).setOrigin(0.5).setAlpha(0).setDepth(100);
@@ -138,20 +146,21 @@ export class AwakeningScene extends Phaser.Scene {
     this.tweens.add({ targets: chargeText, alpha: 1, duration: 180 });
     this.time.delayedCall(180, () => {
       if (!this.scene.isActive('AwakeningScene') || !this.queen?.active) return;
-      this.hud.flickerHealth();
-      this.hud.setHealth(1);
       this.queen.setLunarCharge(true);
+    });
+  }
 
-      const charge = this.add.circle(this.queen.x, this.queen.y - 58, 14, 0xb99bd0, 0.08)
-        .setStrokeStyle(1, 0xe8d7ef, 0.8).setDepth(80);
-      this.tweens.add({
-        targets: charge,
-        scale: 1.7,
-        alpha: 0,
-        duration: 1050,
-        ease: 'Cubic.out',
-        onComplete: () => charge.destroy(),
-      });
+  // The surge beat: purple lightning rises around her from the ground past
+  // her head, and on the same clock the empty life bar fills to exactly full.
+  beginLifeforceSurge() {
+    const { lightningDurationMs, healthFillMs } = QUEEN.entrance.lifeforce;
+    this.hud.flickerHealth();
+    this.hud.fillHealth(healthFillMs);
+    showLifeforceLightning({
+      x: this.queen.x,
+      groundY: this.queen.y,
+      height: this.queen.baseHeight,
+      durationMs: lightningDurationMs,
     });
   }
 
