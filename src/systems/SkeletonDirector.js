@@ -23,6 +23,15 @@ export class SkeletonDirector {
     this.spawned = false;
   }
 
+  // Restores a clean pre-spawn patrol so tests (and scene restarts) can
+  // simulate the delay from a known clock instead of whatever the live loop
+  // already consumed.
+  reset() {
+    this.destroy();
+    this.spawnTimerMs = SKELETON_INFANTRY.spawnDelayMs;
+    this.spawned = false;
+  }
+
   spawnOne(player) {
     if (!player?.active) return null;
 
@@ -42,20 +51,36 @@ export class SkeletonDirector {
   }
 
   update(deltaMs, player) {
-    const deltaSeconds = deltaMs / 1000;
+    let aiDeltaMs = deltaMs;
 
     if (!this.spawned) {
       this.spawnTimerMs -= deltaMs;
-      if (this.spawnTimerMs <= 0) this.spawnOne(player);
+      if (this.spawnTimerMs > 0) return;
+      // Only the time *after* the spawn instant should animate the new unit.
+      // Dumping the whole delay into one step made it sprint past the player.
+      aiDeltaMs = Math.max(0, -this.spawnTimerMs);
+      if (!this.spawnOne(player)) {
+        this.spawnTimerMs = 0;
+        return;
+      }
     }
+
+    const deltaSeconds = aiDeltaMs / 1000;
 
     this.skeletons.slice().forEach((skeleton) => {
       if (!skeleton.active) {
         this.skeletons.splice(this.skeletons.indexOf(skeleton), 1);
         return;
       }
-      this.updateSkeleton(skeleton, player, deltaSeconds, deltaMs);
+      this.updateSkeleton(skeleton, player, deltaSeconds, aiDeltaMs);
     });
+  }
+
+  beginSettling(skeleton, facingLeft) {
+    skeleton.state = STATE.SETTLING;
+    skeleton.settleTimerMs = SKELETON_INFANTRY.settlePauseMs;
+    skeleton.moving = false;
+    skeleton.setFacing(facingLeft ? 'left' : 'right');
   }
 
   updateSkeleton(skeleton, player, deltaSeconds, deltaMs) {
@@ -67,20 +92,21 @@ export class SkeletonDirector {
 
     const dx = (player?.active ? player.x : skeleton.guardX) - skeleton.x;
     const distance = Math.abs(dx);
+    const facingLeft = dx < 0;
 
     switch (skeleton.state) {
       case STATE.ADVANCING: {
         if (distance <= SKELETON_INFANTRY.guardDistance) {
-          skeleton.state = STATE.SETTLING;
-          skeleton.settleTimerMs = SKELETON_INFANTRY.settlePauseMs;
-          skeleton.moving = false;
-          skeleton.setFacing(dx < 0 ? 'left' : 'right');
+          this.beginSettling(skeleton, facingLeft);
           break;
         }
-        const direction = dx < 0 ? -1 : 1;
-        skeleton.x += direction * SKELETON_INFANTRY_WALK_SPEED * deltaSeconds;
-        skeleton.setFacing(direction < 0 ? 'left' : 'right');
-        skeleton.moving = true;
+        const direction = facingLeft ? -1 : 1;
+        const maxStep = distance - SKELETON_INFANTRY.guardDistance;
+        const step = Math.min(SKELETON_INFANTRY_WALK_SPEED * deltaSeconds, maxStep);
+        skeleton.x += direction * step;
+        skeleton.setFacing(facingLeft ? 'left' : 'right');
+        skeleton.moving = step > 0;
+        if (step >= maxStep) this.beginSettling(skeleton, facingLeft);
         break;
       }
       case STATE.SETTLING: {
@@ -97,7 +123,7 @@ export class SkeletonDirector {
           skeleton.state = STATE.ADVANCING;
           break;
         }
-        skeleton.setFacing(dx < 0 ? 'left' : 'right');
+        skeleton.setFacing(facingLeft ? 'left' : 'right');
         skeleton.moving = false;
         break;
       }
