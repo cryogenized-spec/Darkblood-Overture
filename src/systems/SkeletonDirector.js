@@ -46,7 +46,10 @@ export class SkeletonDirector {
 
     if (!this.spawned) {
       this.spawnTimerMs -= deltaMs;
-      if (this.spawnTimerMs <= 0) this.spawnOne(player);
+      if (this.spawnTimerMs <= 0) {
+        this.spawnOne(player);
+        return;
+      }
     }
 
     this.skeletons.slice().forEach((skeleton) => {
@@ -106,6 +109,13 @@ export class SkeletonDirector {
     }
 
     skeleton.updateWalk(deltaMs);
+  }
+
+  reset() {
+    this.skeletons.forEach((skeleton) => skeleton.destroy());
+    this.skeletons = [];
+    this.spawnTimerMs = SKELETON_INFANTRY.spawnDelayMs;
+    this.spawned = false;
   }
 
   destroy() {
